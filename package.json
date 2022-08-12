@@ -1,0 +1,58 @@
+{
+  "name": "js-memory",
+  "version": "0.0.1",
+  "description": "Analyze js memory",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "vuepress dev vuepress",
+    "docs:dev": "vuepress dev vuepress",
+    "docs:build": "vuepress build vuepress",
+    "precommit": "lint-staged",
+    "build": "node_modules/.bin/tsc"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/*": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linjinze999/js-memory.git"
+  },
+  "keywords": [
+    "js",
+    "momory"
+  ],
+  "author": "linjinze",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/linjinze999/js-memory/issues"
+  },
+  "homepage": "https://github.com/linjinze999/js-memory#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "async-validator": "1.11.5",
+    "echarts": "^5.2.2",
+    "element-ui": "^2.15.9",
+    "eslint": "^8.21.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "node-sass": "4.14.1",
+    "sass-loader": "7.3.1",
+    "ts-loader": "8.2.0",
+    "typescript": "4.5.2",
+    "vuepress": "^1.9.7",
+    "vuex": "3.6.2"
+  }
+}
