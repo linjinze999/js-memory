@@ -1,5 +1,3 @@
 # 统计视图
 
-统计视图
-
-<V8Snapshot-V8SnapshotFiles/>
+统计视图-待实现

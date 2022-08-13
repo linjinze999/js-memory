@@ -1,7 +1,19 @@
 # js-memory
-Analyze js memory
 
-在线地址：[https://linjinze999.github.io/js-momory/](https://linjinze999.github.io/js-momory/)
+## 简介
+分析JS内存。
 
-源码地址：[https://github.com/linjinze999/js-momory](https://github.com/linjinze999/js-momory)
+在线分析：[https://linjinze999.github.io/js-memory/](https://linjinze999.github.io/js-memory/)
 
+源码地址：[https://github.com/linjinze999/js-memory](https://github.com/linjinze999/js-memory)
+
+## 使用
+
+1. 安装：`npm install js-memory`
+2. 使用：
+``` js
+import { V8Snapshot } from "js-memory";
+
+const snapshot = new V8Snapshot({text: "heapsnapshot文件内容"});
+const statistics = snapshot.calculateStatistics();
+```

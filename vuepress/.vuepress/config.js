@@ -38,24 +38,27 @@ module.exports = {
               title: '堆快照',
               collapsable: false,
               children: [
+                'snapshot/statistics',
                 'snapshot/summary',
                 'snapshot/comparison',
                 'snapshot/containment',
-                'snapshot/statistics',
               ]
             },
             {
               title: '时间轴上的分配插桩',
               collapsable: false,
               children: [
-                '',
+                'timeline/statistics',
+                'timeline/summary',
+                'timeline/comparison',
+                'timeline/containment',
               ]
             },
             {
               title: '分配采样',
               collapsable: false,
               children: [
-                '',
+                'profile/chart',
               ]
             },
           ]

@@ -33,6 +33,6 @@ footer: MIT Licensed | Copyright © 2022-personal linjinze999
 </el-col>
 </el-row>
 
-在线地址：[https://linjinze999.github.io/js-momory/](https://linjinze999.github.io/js-momory/)
+在线地址：[https://linjinze999.github.io/js-memory/](https://linjinze999.github.io/js-memory/)
 
-源码地址：[https://github.com/linjinze999/js-momory](https://github.com/linjinze999/js-momory)
+源码地址：[https://github.com/linjinze999/js-memory](https://github.com/linjinze999/js-memory)
