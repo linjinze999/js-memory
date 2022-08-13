@@ -34,7 +34,7 @@
   "bugs": {
     "url": "https://github.com/linjinze999/js-memory/issues"
   },
-  "homepage": "https://github.com/linjinze999/js-memory#readme",
+  "homepage": "https://linjinze999.github.io/js-memory/",
   "dependencies": {},
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.33.0",
