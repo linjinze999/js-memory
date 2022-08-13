@@ -94,8 +94,13 @@ export default {
     padding: 10px;
     word-break: break-all;
 
-    &:hover, &:focus, &.active{
+    &:hover, &:focus{
       border-color: #409eff;
+      color: #409eff;
+    }
+
+    &.active{
+      border: 1px solid #409eff;
       color: #409eff;
     }
 

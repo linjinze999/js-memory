@@ -25,7 +25,7 @@ module.exports = {
         nav: [
           {
             text: 'V8(Chrome)',
-            link: '/V8/',
+            link: '/V8/snapshot/statistics',
           },
           {
             text: 'JSC(Safari)',
