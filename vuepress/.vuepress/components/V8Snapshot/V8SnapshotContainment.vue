@@ -36,7 +36,31 @@
               >
                 {{ scope.row.type === 'element' ? `[${scope.row.name_or_index}]` : scope.row.name_or_index }}
               </span>
-              <span> :: {{ scope.row.name }}</span>
+              <span>&nbsp;::&nbsp;</span>
+              <span :style="{
+                color: scope.row.nodeType === 'concatenated string' || scope.row.nodeType === 'string' || scope.row.nodeType === 'regexp'
+                   ? 'rgb(200,0,0)'
+                   :  scope.row.nodeType === 'closure'
+                      ? undefined
+                       : scope.row.nodeType === 'bigint'
+                        ? 'rgb(35,110,37)'
+                         : scope.row.nodeType === 'number'
+                          ? 'rgb(26,26,166)'
+                           :scope.row.nodeType === 'hidden' || scope.row.nodeType === 'object shape'
+                            ? '#909399'
+                             : undefined,
+                             fontStyle: scope.row.nodeType === 'closure' ? 'italic': undefined
+              }">
+                {{ scope.row.nodeType === 'concatenated string' || scope.row.nodeType === 'string'
+                  ? `"${scope.row.name}"`
+                  :  scope.row.nodeType === 'regexp'
+                      ? `/${scope.row.name}/`
+                      : scope.row.nodeType === 'closure'
+                          ? `${scope.row.name}()`
+                          : scope.row.nodeType === 'array'
+                              ? `${scope.row.name || '(internal array)'}[]`
+                              : scope.row.name }}
+              </span>
               <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
             </template>
           </el-table-column>
@@ -99,6 +123,7 @@ export default {
         return {
           ...item.node,
           ...item.edge,
+          nodeType: item.node.type,
           rowKey: `${item.edge.name_or_index}_${item.edge.to_node}`,
           hasChildren: !!(edges && edges.length)
         }
