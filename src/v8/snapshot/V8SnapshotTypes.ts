@@ -24,7 +24,8 @@ export enum V8SnapshotNodeTypes {
     concatenated_string = 'concatenated string',
     sliced_string = 'sliced string',
     symbol = 'symbol',
-    bigint = 'bigint'
+    bigint = 'bigint',
+    object_shape = "object shape" // todo 暂时不知道哪来的
 }
 
 // edge_fields
@@ -44,7 +45,8 @@ export enum V8SnapshotEdgeTypes {
     shortcut='shortcut',
     weak='weak',
     string_or_number='string_or_number',
-    node= 'node'
+    node= 'node',
+    invisible = 'invisible' // 超出的叫这个
 }
 
 // trace_function_info_fields

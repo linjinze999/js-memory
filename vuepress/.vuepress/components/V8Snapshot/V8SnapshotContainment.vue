@@ -1,15 +1,19 @@
 <template>
   <div>
+    <!-- 1. 文件选择 -->
     <el-card>
       <V8Snapshot-V8SnapshotFiles/>
     </el-card>
     <br/>
+    <!-- 2. 控制/包含 视图 -->
     <el-card>
+      <!-- 2.1 标题 -->
       <div slot="header">
         <div v-if="activeSnapshot">{{activeSnapshot.name}}</div>
         <div v-else>未选择</div>
       </div>
       <div>
+        <!-- 2.2 表格树 -->
         <div v-if="!activeSnapshot">未选择</div>
         <div v-else-if="!activeSnapshot.snapshot" v-loading="true">解析中...</div>
         <el-table
@@ -23,81 +27,106 @@
             :load="load"
             :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             :header-cell-style="{backgroundColor: '#f5f7fa'}"
+            highlight-current-row
+            @current-change="handleCurrentChange"
         >
           <el-table-column prop="name" sortable label="对象">
             <template slot-scope="scope">
-              <span :style="{
-                color: ['internal', 'hidden', 'weak'].indexOf(scope.row.type) > -1
-                   ? '#909399'
-                   : scope.row.type ==='context'
-                    ? 'rgb(26,26,166)'
-                     : 'rgb(136,18,128)'
-              }"
-              >
-                {{ scope.row.type === 'element' ? `[${scope.row.name_or_index}]` : scope.row.name_or_index }}
+              <span :style="scope.row.nameShowPrefixStyle">
+                {{ scope.row.nameShowPrefix }}
               </span>
               <span>&nbsp;::&nbsp;</span>
-              <span :style="{
-                color: scope.row.nodeType === 'concatenated string' || scope.row.nodeType === 'string' || scope.row.nodeType === 'regexp'
-                   ? 'rgb(200,0,0)'
-                   :  scope.row.nodeType === 'closure'
-                      ? undefined
-                       : scope.row.nodeType === 'bigint'
-                        ? 'rgb(35,110,37)'
-                         : scope.row.nodeType === 'number'
-                          ? 'rgb(26,26,166)'
-                           :scope.row.nodeType === 'hidden' || scope.row.nodeType === 'object shape'
-                            ? '#909399'
-                             : undefined,
-                             fontStyle: scope.row.nodeType === 'closure' ? 'italic': undefined
-              }">
-                {{ scope.row.nodeType === 'concatenated string' || scope.row.nodeType === 'string'
-                  ? `"${scope.row.name}"`
-                  :  scope.row.nodeType === 'regexp'
-                      ? `/${scope.row.name}/`
-                      : scope.row.nodeType === 'closure'
-                          ? `${scope.row.name}()`
-                          : scope.row.nodeType === 'array'
-                              ? `${scope.row.name || '(internal array)'}[]`
-                              : scope.row.name }}
+              <span :style="scope.row.nameShowStyle">
+                {{ scope.row.nameShow }}
               </span>
               <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
+              <span v-if="scope.row.reachableFromWindow" title="可通过window访问的用户对象"> 🀆</span>
+              <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
             </template>
           </el-table-column>
           <el-table-column prop="distance" sortable label="距离" align="right">
             <template slot-scope="scope">
-              <span>{{ scope.row.distance >= BASE_SYSTEM_DISTANCE ? "-" : scope.row.distance }}</span>
+              <span>{{ scope.row.distanceShow }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="self_size" sortable label="浅层大小" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.self_size }}</span>
-              <span class="sub-text">&nbsp;&nbsp;{{Math.round(scope.row.self_size * 100 / totalSize)}}%</span>
+              <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
             </template>
           </el-table-column>
           <el-table-column prop="retained_size" sortable label="保留大小" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.retained_size }}</span>
-              <span class="sub-text">&nbsp;&nbsp;{{Math.round(scope.row.retained_size * 100 / totalSize)}}%</span>
+              <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
             </template>
           </el-table-column>
         </el-table>
+        <el-tabs type="border-card">
+          <!-- 2.3 保留器 -->
+          <el-tab-pane label="保留器">
+            <el-table
+                v-if="currentNode"
+                :data="currentNodeParents"
+                row-key="rowKey"
+                style="width: 100%"
+                :max-height="500"
+                size="small"
+                lazy
+                :load="loadParents"
+                :tree-props="{children: 'parents', hasChildren: 'hasParents'}"
+                :header-cell-style="{backgroundColor: '#f5f7fa'}"
+            >
+              <el-table-column prop="name" sortable label="对象">
+                <template slot-scope="scope">
+              <span :style="scope.row.nameShowPrefixStyle">
+                {{ scope.row.nameShowPrefix }}
+              </span>
+                  <span>&nbsp;::&nbsp;</span>
+                  <span :style="scope.row.nameShowStyle">
+                {{ scope.row.nameShow }}
+              </span>
+                  <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
+                  <span v-if="scope.row.reachableFromWindow" title="可通过window访问的用户对象"> 🀆</span>
+                  <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="distance" sortable label="距离" align="right">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.distanceShow }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="self_size" sortable label="浅层大小" align="right">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.self_size }}</span>
+                  <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="retained_size" sortable label="保留大小" align="right">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.retained_size }}</span>
+                  <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
       </div>
     </el-card>
   </div>
 </template>
 
 <script>
-import {V8SnapshotInfo} from '../../../../src/v8/snapshot/V8SnapshotInfo'
 import { createNamespacedHelpers } from 'vuex';
+import {getNodeShowInfo} from "./utils";
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
   name: "V8SnapshotContainment",
   data(){
     return {
-      BASE_SYSTEM_DISTANCE: V8SnapshotInfo.BASE_SYSTEM_DISTANCE
-    }
+      currentNode: null
+    };
   },
   computed: {
     rootList(){
@@ -105,6 +134,9 @@ export default {
     },
     totalSize(){
       return ( this.activeSnapshot && this.activeSnapshot.snapshot && this.activeSnapshot.snapshot.calculateStatistics().total) || 9999999999;
+    },
+    currentNodeParents(){
+      return this.currentNode ? this.getNodeParents(this.currentNode.id) : [];
     },
     ...mapGetters(["activeSnapshot"])
   },
@@ -118,16 +150,43 @@ export default {
       resolve(result);
     },
     getNodeChildren(nodeId){
-      return this.activeSnapshot.snapshot.getChildren(nodeId).map(item => {
-        const edges = this.activeSnapshot.snapshot.snapshot_info.edges[item.node.id];
+      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+        return [];
+      }
+      return this.activeSnapshot.snapshot.getNodeChildren(nodeId).map((item) => {
+        const {node, edge} = item;
+        const edges = this.activeSnapshot.snapshot.snapshot_info.edges[node.id];
         return {
-          ...item.node,
-          ...item.edge,
-          nodeType: item.node.type,
-          rowKey: `${item.edge.name_or_index}_${item.edge.to_node}`,
+          ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
+          rowKey: `${edge.name_or_index}_${edge.to_node}`,
           hasChildren: !!(edges && edges.length)
         }
       });
+    },
+    loadParents(tree, treeNode, resolve) {
+      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+        resolve([]);
+        return;
+      }
+      const result = this.getNodeParents(tree.id);
+      resolve(result);
+    },
+    getNodeParents(nodeId){
+      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+        return [];
+      }
+      return this.activeSnapshot.snapshot.getNodeParents(nodeId).map((item) => {
+        const {node, edge} = item;
+        const edges = this.activeSnapshot.snapshot.snapshot_info.edges_to[node.id];
+        return {
+          ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
+          rowKey: `${edge.name_or_index}_${edge.from_node}`,
+          hasParents: !!(edges && edges.length)
+        }
+      });
+    },
+    handleCurrentChange(currentRow, oldCurrentRow){
+      this.currentNode = currentRow;
     }
   }
 }

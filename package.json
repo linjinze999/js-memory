@@ -19,6 +19,10 @@
     "src/*": [
       "node_modules/.bin/eslint --fix",
       "git add"
+    ],
+    "vuepress/*": [
+      "node_modules/.bin/eslint --fix",
+      "git add"
     ]
   },
   "repository": {

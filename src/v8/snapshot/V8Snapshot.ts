@@ -94,12 +94,22 @@ export class V8Snapshot {
   };
 
   // 获取子节点
-  public getChildren = (nodeId?: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
+  public getNodeChildren = (nodeId?: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
     let node_id = nodeId === undefined ? this.snapshot_info.root_id : nodeId;
-    return this.snapshot_info.edges[node_id].map(edge=>{
+    return this.snapshot_info.edges[node_id]?.map(edge => {
       return {
         edge,
         node: this.snapshot_info.nodes[edge.to_node]
+      }
+    }) || [];
+  }
+
+  // 获取父节点
+  public getNodeParents = (nodeId: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
+    return this.snapshot_info.edges_to[nodeId]?.map(edge => {
+      return {
+        edge,
+        node: this.snapshot_info.nodes[edge.from_node]
       }
     }) || [];
   }

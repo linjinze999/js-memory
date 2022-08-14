@@ -296,11 +296,13 @@ export class V8SnapshotInfo {
     const value = this.snapshot.edges[edge_start + field_index];
     const type = this.snapshot.snapshot.meta.edge_types[field_index];
     if (type === V8SnapshotEdgeTypes.string_or_number) {
-      return field_type === V8SnapshotEdgeTypes.element ? value : this.snapshot.strings[value];
+      return (field_type === V8SnapshotEdgeTypes.element || field_type === V8SnapshotEdgeTypes.hidden)
+          ? value
+          : this.snapshot.strings[value];
     } if (type === V8SnapshotEdgeTypes.node) {
       return this.getNodeField(value, this.node_fields_idx[V8SnapshotNodeFields.id]);
     } if (Array.isArray(type)) {
-      return type[value];
+      return type[value] || V8SnapshotEdgeTypes.invisible;
     }
     throw new Error(`unsupported edge field type: ${type}`);
   };
@@ -378,8 +380,40 @@ export class V8SnapshotInfo {
 
   // 节点标记
   private calculateFlags = () => {
+    this.markQueriableHeapObjects();
     this.markPageOwnedNodes();
   };
+
+  // 标记节点可查询
+  private markQueriableHeapObjects = () => {
+    const flag = V8SnapshotInfo.NODE_FLAGS.canBeQueried;
+
+    const list: V8SnapshotInfoNode[] = [];
+    let node_to: V8SnapshotInfoNode;
+    this.edges[this.root_id]?.forEach((edge) => {
+      node_to = this.nodes[edge.to_node];
+      if (node_to.type !== V8SnapshotNodeTypes.synthetic) {
+        list.push(node_to);
+      }
+    });
+
+    while (list.length) {
+      const node = (list.pop() as V8SnapshotInfoNode);
+      if (node.flag & flag) {
+        continue;
+      }
+      node.flag |= flag;
+      this.edges[node.id]?.forEach(edge => {
+        const childNode = this.nodes[edge.to_node];
+        if(childNode.flag & flag){
+          return;
+        } else if(edge.type === V8SnapshotEdgeTypes.hidden || edge.type === V8SnapshotEdgeTypes.invisible || edge.type === V8SnapshotEdgeTypes.internal ||edge.type === V8SnapshotEdgeTypes.weak){
+          return;
+        }
+        list.push(childNode);
+      });
+    }
+  }
 
   // 标记node节点是有页面内对象
   private markPageOwnedNodes() {

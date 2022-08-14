@@ -3,9 +3,9 @@
 ## 简介
 分析JS内存。
 
-在线分析：[https://linjinze999.github.io/js-memory/](https://linjinze999.github.io/js-memory/)
+在线地址：[https://linjinze999.github.io/js-memory/](https://linjinze999.github.io/js-memory/)
 
-源码地址：[https://github.com/linjinze999/js-memory](https://github.com/linjinze999/js-memory)
+> 源码地址：[https://github.com/linjinze999/js-memory](https://github.com/linjinze999/js-memory)
 
 ## 使用
 
@@ -23,3 +23,6 @@ const statistics = snapshot.calculateStatistics();
 npm install
 npm run dev
 ```
+
+## 备注
+参考：[devtools-frontend](https://github.com/ChromeDevTools/devtools-frontend)
