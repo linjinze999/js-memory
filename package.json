@@ -16,11 +16,11 @@
     }
   },
   "lint-staged": {
-    "src/*": [
+    "src/**/*": [
       "node_modules/.bin/eslint --fix",
       "git add"
     ],
-    "vuepress/*": [
+    "vuepress/**/*": [
       "node_modules/.bin/eslint --fix",
       "git add"
     ]
