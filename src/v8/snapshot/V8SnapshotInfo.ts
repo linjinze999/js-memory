@@ -40,7 +40,7 @@ export type V8SnapshotInfoNode = Record<V8SnapshotNodeFields | V8SnapshotInfoNod
 };
 export type V8SnapshotInfoEdge = Record<V8SnapshotEdgeFields | V8SnapshotInfoEdgeFields, number | string> & {
     [V8SnapshotEdgeFields.type]: V8SnapshotEdgeTypes,
-    [V8SnapshotEdgeFields.name_or_index]: string,
+    [V8SnapshotEdgeFields.name_or_index]: string | number,
     [V8SnapshotEdgeFields.to_node]: number,
     [V8SnapshotInfoEdgeFields.from_node]: number
 };
@@ -270,34 +270,33 @@ export class V8SnapshotInfo {
         this.edge_list.push(edge);
         // edge from map
         this.edges[from_node_id] = this.edges[from_node_id] || [];
-                this.edges[from_node_id]!.push(edge);
-                // edge to map
-                this.edges_to[edge.to_node] = this.edges_to[edge.to_node] || [];
-                this.edges_to[edge.to_node]!.push(edge);
-                edge_start += this.edge_fields_count;
+        this.edges[from_node_id]!.push(edge);
+        // edge to map
+        this.edges_to[edge.to_node] = this.edges_to[edge.to_node] || [];
+        this.edges_to[edge.to_node]!.push(edge);
+        edge_start += this.edge_fields_count;
       }
     });
   };
 
   // 获取edge
-  // eslint-disable-next-line camelcase
   private getEdge = (edge_start: number, from_node: number): V8SnapshotInfoEdge => {
     const edge_field = this.snapshot.snapshot.meta.edge_fields;
     const edge: Partial<V8SnapshotInfoEdge> = {
       from_node,
     };
     for (let i = 0; i < this.edge_fields_count; ++i) {
-      (edge[edge_field[i]] as string | number) = this.getEdgeField(edge_start, i);
+      (edge[edge_field[i]] as string | number) = this.getEdgeField(edge_start, i, edge.type);
     }
     return edge as V8SnapshotInfoEdge;
   };
 
   // 获取edge的field
-  private getEdgeField = (edge_start: number, field_index: number): string | number => {
+  private getEdgeField = (edge_start: number, field_index: number, field_type: V8SnapshotEdgeTypes): string | number => {
     const value = this.snapshot.edges[edge_start + field_index];
     const type = this.snapshot.snapshot.meta.edge_types[field_index];
     if (type === V8SnapshotEdgeTypes.string_or_number) {
-      return this.snapshot.strings[value];
+      return field_type === V8SnapshotEdgeTypes.element ? value : this.snapshot.strings[value];
     } if (type === V8SnapshotEdgeTypes.node) {
       return this.getNodeField(value, this.node_fields_idx[V8SnapshotNodeFields.id]);
     } if (Array.isArray(type)) {
@@ -371,7 +370,7 @@ export class V8SnapshotInfo {
       if (node.name !== '(map descriptors)') {
         return true;
       }
-      const index = parseInt(edge.name_or_index, 10);
+      const index = typeof edge.name_or_index === "number" ? edge.name_or_index : parseInt(edge.name_or_index, 10);
       return index < 2 || (index % 3) !== 1;
     }
     return true;

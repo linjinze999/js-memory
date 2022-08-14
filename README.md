@@ -17,3 +17,9 @@ import { V8Snapshot } from "js-memory";
 const snapshot = new V8Snapshot({text: "heapsnapshot文件内容"});
 const statistics = snapshot.calculateStatistics();
 ```
+
+## 开发
+``` shell
+npm install
+npm run dev
+```
