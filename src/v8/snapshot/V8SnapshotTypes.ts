@@ -82,7 +82,7 @@ export enum V8SnapshotLocationFields {
     column='column'
 }
 
-export interface V8Snapshot {
+export interface V8SnapshotJson {
     snapshot: {
         meta: {
             node_fields: Array<V8SnapshotNodeFields>,
@@ -106,5 +106,3 @@ export interface V8Snapshot {
     locations: Array<number>,
     strings: Array<string>
 }
-
-export default V8Snapshot;

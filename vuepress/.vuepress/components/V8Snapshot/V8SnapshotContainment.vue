@@ -5,6 +5,24 @@
       <V8Snapshot-V8SnapshotFiles/>
     </el-card>
     <br/>
+    <el-card>
+      <div slot="header">
+        <div>节点过滤</div>
+      </div>
+      <el-form :inline="true">
+        <el-form-item label="过滤类型">
+          <el-select v-model="nodeFilterSelect" placeholder="请选择">
+            <el-option
+                v-for="item in nodeFilterOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </el-card>
+    <br/>
     <!-- 2. 控制/包含 视图 -->
     <el-card>
       <!-- 2.1 标题 -->
@@ -44,27 +62,28 @@
               <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
             </template>
           </el-table-column>
-          <el-table-column prop="distance" sortable label="距离" align="right">
+          <el-table-column prop="distance" sortable label="到根的最短距离" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.distanceShow }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="self_size" sortable label="浅层大小" align="right">
+          <el-table-column prop="self_size" sortable label="自身大小" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.self_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
             </template>
           </el-table-column>
-          <el-table-column prop="retained_size" sortable label="保留大小" align="right">
+          <el-table-column prop="retained_size" sortable label="总大小" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.retained_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
             </template>
           </el-table-column>
         </el-table>
+        <br/>
         <el-tabs type="border-card">
           <!-- 2.3 保留器 -->
-          <el-tab-pane label="保留器">
+          <el-tab-pane label="父节点">
             <el-table
                 v-if="currentNode"
                 :data="currentNodeParents"
@@ -118,14 +137,16 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import {getNodeShowInfo} from "./utils";
+import {getNodeShowInfo, nodeFilterOptions, nodeFilterType} from "./utils";
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
   name: "V8SnapshotContainment",
   data(){
     return {
-      currentNode: null
+      nodeFilterSelect: nodeFilterType.userObject,
+      currentNode: null,
+      nodeFilterOptions
     };
   },
   computed: {

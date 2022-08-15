@@ -1,5 +1,10 @@
-import {V8SnapshotEdgeTypes, V8SnapshotNodeTypes} from "../../../../src/v8/snapshot/V8SnapshotTypes";
-import {V8SnapshotInfo, V8SnapshotInfoEdge, V8SnapshotInfoNode} from "../../../../src/v8/snapshot/V8SnapshotInfo";
+import {
+    V8SnapshotEdgeTypes,
+    V8SnapshotNodeTypes,
+    V8SnapshotInfo,
+    V8SnapshotInfoEdge,
+    V8SnapshotInfoNode
+} from "../../../../src";
 
 export function getNodeShowInfo(params: { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode, totalSize: number }){
     const {edge, node, totalSize} = params;
@@ -46,3 +51,24 @@ export function getNodeShowInfo(params: { edge: V8SnapshotInfoEdge, node: V8Snap
         retainedSizePercent: Math.round(node.retained_size * 100 / totalSize),
     }
 }
+
+export enum nodeFilterType {
+    userObject = 1,
+    all,
+    customize
+}
+
+export const nodeFilterOptions = [
+    {
+        value: nodeFilterType.userObject,
+        label: "可访问节点"
+    },
+    {
+        value: nodeFilterType.all,
+        label: "全部节点"
+    },
+    {
+        value: nodeFilterType.customize,
+        label: "自定义"
+    },
+]

@@ -1,5 +1,5 @@
 import {
-  V8Snapshot,
+  V8SnapshotJson,
   V8SnapshotEdgeFields,
   V8SnapshotEdgeTypes,
   V8SnapshotNodeFields,
@@ -67,7 +67,7 @@ export class V8SnapshotInfo {
     this.init(options.text);
   }
 
-  public snapshot: V8Snapshot = null as any;
+  public snapshot: V8SnapshotJson = null as any;
 
   public node_list: V8SnapshotInfoNode[] = []; // [node_1, node_2, ...]
 
