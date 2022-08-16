@@ -10,7 +10,7 @@
         <div>节点过滤</div>
       </div>
       <el-form :inline="true">
-        <el-form-item label="过滤类型">
+        <el-form-item label="节点类型">
           <el-select v-model="nodeFilterSelect" placeholder="请选择">
             <el-option
                 v-for="item in nodeFilterOptions"
@@ -19,6 +19,71 @@
                 :value="item.value">
             </el-option>
           </el-select>
+          <el-select
+              v-if="nodeFilterSelect === nodeFilterType.customize"
+              v-model="nodeFilterTypesSelect"
+              placeholder="请选择"
+              multiple
+          >
+            <el-option
+                v-for="item in nodeFilterTypeOptions"
+                :key="item"
+                :label="item"
+                :value="item">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="名称">
+          <el-input
+              placeholder="请输入内容"
+              v-model="nodeFilterName"
+              clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="最短根距离">
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterDistanceMin"
+              clearable>
+          </el-input>
+          -
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterDistanceMax"
+              clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="自身大小">
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterSelfSizeMin"
+              clearable>
+          </el-input>
+          -
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterSelfSizeMax"
+              clearable>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="总大小">
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterRetainedSizeMin"
+              clearable>
+          </el-input>
+          -
+          <el-input
+              type="number"
+              placeholder="请输入内容"
+              v-model="nodeFilterRetainedSizeMax"
+              clearable>
+          </el-input>
         </el-form-item>
       </el-form>
     </el-card>
@@ -62,7 +127,7 @@
               <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
             </template>
           </el-table-column>
-          <el-table-column prop="distance" sortable label="到根的最短距离" align="right">
+          <el-table-column prop="distance" sortable label="最短根距离" align="right">
             <template slot-scope="scope">
               <span>{{ scope.row.distanceShow }}</span>
             </template>
@@ -110,18 +175,18 @@
                   <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="distance" sortable label="距离" align="right">
+              <el-table-column prop="distance" sortable label="最短根距离" align="right">
                 <template slot-scope="scope">
                   <span>{{ scope.row.distanceShow }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="self_size" sortable label="浅层大小" align="right">
+              <el-table-column prop="self_size" sortable label="自身大小" align="right">
                 <template slot-scope="scope">
                   <span>{{ scope.row.self_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="retained_size" sortable label="保留大小" align="right">
+              <el-table-column prop="retained_size" sortable label="总大小" align="right">
                 <template slot-scope="scope">
                   <span>{{ scope.row.retained_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
@@ -137,16 +202,26 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import {getNodeShowInfo, nodeFilterOptions, nodeFilterType} from "./utils";
+import { getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions } from './utils';
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
   name: "V8SnapshotContainment",
   data(){
     return {
+      nodeFilterDistanceMin: null,
+      nodeFilterDistanceMax: null,
+      nodeFilterSelfSizeMin: null,
+      nodeFilterSelfSizeMax: null,
+      nodeFilterRetainedSizeMin: null,
+      nodeFilterRetainedSizeMax: null,
+      nodeFilterName: "",
+      nodeFilterType,
       nodeFilterSelect: nodeFilterType.userObject,
       currentNode: null,
-      nodeFilterOptions
+      nodeFilterOptions,
+      nodeFilterTypeOptions,
+      nodeFilterTypesSelect: []
     };
   },
   computed: {

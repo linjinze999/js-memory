@@ -72,3 +72,21 @@ export const nodeFilterOptions = [
         label: "自定义"
     },
 ]
+
+export const nodeFilterTypeOptions = [
+    V8SnapshotNodeTypes.string,
+    V8SnapshotNodeTypes.hidden,
+    V8SnapshotNodeTypes.array,
+    V8SnapshotNodeTypes.concatenated_string,
+    V8SnapshotNodeTypes.number,
+    V8SnapshotNodeTypes.sliced_string,
+    V8SnapshotNodeTypes.object,
+    V8SnapshotNodeTypes.bigint,
+    V8SnapshotNodeTypes.closure,
+    V8SnapshotNodeTypes.regexp,
+    V8SnapshotNodeTypes.native,
+    V8SnapshotNodeTypes.code,
+    V8SnapshotNodeTypes.symbol,
+    V8SnapshotNodeTypes.synthetic,
+    V8SnapshotNodeTypes.object_shape
+]
