@@ -1,11 +1,11 @@
 import {
   V8SnapshotInfo, V8SnapshotInfoEdge,
   V8SnapshotInfoNode,
-  V8SnapshotProgressParams
+  V8SnapshotProgressParams,
 } from './V8SnapshotInfo';
 import { V8SnapshotEdgeTypes, V8SnapshotNodeTypes } from './V8SnapshotTypes';
 
-export interface SnapshotOptions{
+export interface SnapshotOptions {
   text: string;
   progressCallback?: (params: V8SnapshotProgressParams) => void;
 }
@@ -19,12 +19,17 @@ interface V8SnapshotCalculateSize {
   others: number // 其他
 }
 
+interface NodeEdge {
+  node: V8SnapshotInfoNode,
+  edge: V8SnapshotInfoEdge,
+}
+
 export class V8Snapshot {
   constructor(options: SnapshotOptions) {
     this.options = { ...this.options, ...V8Snapshot.DEFAULT_OPTIONS, ...options };
     this.snapshot_info = new V8SnapshotInfo({
       text: this.options.text,
-      progressCallback: this.options.progressCallback
+      progressCallback: this.options.progressCallback,
     });
   }
 
@@ -32,8 +37,8 @@ export class V8Snapshot {
 
   private readonly options: SnapshotOptions = {} as any;
 
-
   public snapshot_info: V8SnapshotInfo;
+
   private calculateSize?: V8SnapshotCalculateSize;
 
   // 统计数据
@@ -46,7 +51,7 @@ export class V8Snapshot {
         string: 0, // 字符串
         array: 0, // js数组
         system: 0, // 系统对象
-        others: 0 // 其他
+        others: 0, // 其他
       };
       let nodeSize: number;
       this.snapshot_info.node_list.forEach((node) => {
@@ -61,7 +66,7 @@ export class V8Snapshot {
         } else if (([
           V8SnapshotNodeTypes.string,
           V8SnapshotNodeTypes.concatenated_string,
-          V8SnapshotNodeTypes.sliced_string
+          V8SnapshotNodeTypes.sliced_string,
         ]).indexOf(node.type as V8SnapshotNodeTypes) > -1) {
           this.calculateSize.string += nodeSize;
         } else if (node.name === 'Array') {
@@ -94,25 +99,20 @@ export class V8Snapshot {
   };
 
   // 获取子节点
-  public getNodeChildren = (nodeId?: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
-    let node_id = nodeId === undefined || nodeId < 0 ? this.snapshot_info.root_id : nodeId;
-    return this.snapshot_info.edges[node_id]?.map(edge => {
-      return {
-        edge,
-        node: this.snapshot_info.nodes[edge.to_node]
-      }
-    }) || [];
-  }
+  public getNodeChildren = (nodeId?: number): NodeEdge[] => {
+    const node_id = nodeId === undefined || nodeId < 0 ? this.snapshot_info.root_id : nodeId;
+    return this.snapshot_info.edges[node_id]?.map((edge) => ({
+      edge,
+      node: this.snapshot_info.nodes[edge.to_node],
+    })) || [];
+  };
 
   // 获取父节点
-  public getNodeParents = (nodeId: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
-    return this.snapshot_info.edges_to[nodeId]?.map(edge => {
-      return {
-        edge,
-        node: this.snapshot_info.nodes[edge.from_node]
-      }
-    }) || [];
-  }
+  public getNodeParents = (nodeId: number): NodeEdge[] => this.snapshot_info.edges_to[nodeId]
+    ?.map((edge) => ({
+      edge,
+      node: this.snapshot_info.nodes[edge.from_node],
+    })) || [];
 }
 
 export default V8Snapshot;

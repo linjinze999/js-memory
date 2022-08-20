@@ -17,11 +17,11 @@
   },
   "lint-staged": {
     "src/**/*": [
-      "node_modules/.bin/eslint --fix",
+      "node_modules/.bin/eslint --fix --ext .ts src",
       "git add"
     ],
     "vuepress/**/*": [
-      "node_modules/.bin/eslint --fix",
+      "node_modules/.bin/eslint --fix --ext .ts vuepress/.vuepress",
       "git add"
     ]
   },
@@ -48,6 +48,7 @@
     "element-ui": "^2.15.9",
     "eslint": "^8.21.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-vue": "^9.3.0",
     "husky": "^8.0.1",

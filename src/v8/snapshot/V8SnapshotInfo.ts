@@ -19,40 +19,44 @@ export enum V8SnapshotInfoNodeFields {
   // eslint-disable-next-line no-unused-vars
   flag = 'flag',
   // eslint-disable-next-line no-unused-vars
-  idx = 'idx'
+  idx = 'idx',
 }
 
 export enum V8SnapshotInfoEdgeFields {
   // eslint-disable-next-line no-unused-vars
-  from_node = 'from_node'
+  from_node = 'from_node',
 }
 
-export type V8SnapshotInfoNode = Record<V8SnapshotNodeFields | V8SnapshotInfoNodeFields, number | string> & {
-    [V8SnapshotNodeFields.id]: number,
-    [V8SnapshotNodeFields.name]: string,
-    [V8SnapshotNodeFields.type]: V8SnapshotNodeTypes,
-    [V8SnapshotNodeFields.self_size]: number,
-    [V8SnapshotNodeFields.edge_count]: number,
-    [V8SnapshotInfoNodeFields.retained_size]: number,
-    [V8SnapshotInfoNodeFields.distance]: number,
-    [V8SnapshotInfoNodeFields.flag]: number,
-    [V8SnapshotInfoNodeFields.idx]: number,
+export type V8SnapshotInfoNode = Record<
+V8SnapshotNodeFields | V8SnapshotInfoNodeFields, number | string
+> & {
+  [V8SnapshotNodeFields.id]: number,
+  [V8SnapshotNodeFields.name]: string,
+  [V8SnapshotNodeFields.type]: V8SnapshotNodeTypes,
+  [V8SnapshotNodeFields.self_size]: number,
+  [V8SnapshotNodeFields.edge_count]: number,
+  [V8SnapshotInfoNodeFields.retained_size]: number,
+  [V8SnapshotInfoNodeFields.distance]: number,
+  [V8SnapshotInfoNodeFields.flag]: number,
+  [V8SnapshotInfoNodeFields.idx]: number,
 };
-export type V8SnapshotInfoEdge = Record<V8SnapshotEdgeFields | V8SnapshotInfoEdgeFields, number | string> & {
-    [V8SnapshotEdgeFields.type]: V8SnapshotEdgeTypes,
-    [V8SnapshotEdgeFields.name_or_index]: string | number,
-    [V8SnapshotEdgeFields.to_node]: number,
-    [V8SnapshotInfoEdgeFields.from_node]: number
+export type V8SnapshotInfoEdge = Record<
+V8SnapshotEdgeFields | V8SnapshotInfoEdgeFields, number | string
+> & {
+  [V8SnapshotEdgeFields.type]: V8SnapshotEdgeTypes,
+  [V8SnapshotEdgeFields.name_or_index]: string | number,
+  [V8SnapshotEdgeFields.to_node]: number,
+  [V8SnapshotInfoEdgeFields.from_node]: number
 };
 
-interface V8SnapshotInfoAggregatedInfo{
-    count: number,
-    distance: number,
-    self: number,
-    maxRet: number,
-    type: V8SnapshotNodeTypes,
-    name: string | null,
-    idxs: number[],
+interface V8SnapshotInfoAggregatedInfo {
+  count: number,
+  distance: number,
+  self: number,
+  maxRet: number,
+  type: V8SnapshotNodeTypes,
+  name: string | null,
+  idxs: number[],
 }
 
 export interface V8SnapshotProgressParams {
@@ -124,6 +128,7 @@ export class V8SnapshotInfo {
     try {
       this.snapshot = JSON.parse(text);
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('[V8SnapshotInfo] format snapshot error: ', e);
       throw new Error('could not format snapshot string');
     }
@@ -132,74 +137,74 @@ export class V8SnapshotInfo {
     }
     this.root_id = V8SnapshotInfo.ROOT_NODE_ID;
     // 初始化任务列表
-    const initTasks: {progress: number, text: string, fn: () => void}[] = [
+    const initTasks: { progress: number, text: string, fn: () => void }[] = [
       {
         progress: 0,
-        text: "开始解析...",
+        text: '开始解析...',
         fn: this.initFieldsIndex,
       },
       {
         progress: 0.09,
-        text: "初始化节点数据...",
-        fn: this.initNodes
+        text: '初始化节点数据...',
+        fn: this.initNodes,
       },
       {
         progress: 0.18,
-        text: "初始化结构数据...",
+        text: '初始化结构数据...',
         fn: this.initEdges,
       },
       {
         progress: 0.27,
-        text: "初始化节点标记...",
+        text: '初始化节点标记...',
         fn: this.calculateFlags,
       },
       {
         progress: 0.36,
-        text: "初始化倒序树...",
+        text: '初始化倒序树...',
         fn: this.buildPostOrderIndex,
       },
       {
         progress: 0.45,
-        text: "初始化支配树...",
+        text: '初始化支配树...',
         fn: this.buildDominatorTree,
       },
       {
         progress: 0.54,
-        text: "初始化节点保留大小...",
+        text: '初始化节点保留大小...',
         fn: this.calculateRetainedSizes,
       },
       {
         progress: 0.63,
-        text: "初始化支配节点...",
+        text: '初始化支配节点...',
         fn: this.buildDominatedNodes,
       },
       {
         progress: 0.72,
-        text: "初始化节点根距离...",
+        text: '初始化节点根距离...',
         fn: this.initDistance,
       },
       {
         progress: 0.81,
-        text: "初始化类合集...",
+        text: '初始化类合集...',
         fn: this.buildAggregates,
       },
       {
         progress: 0.9,
-        text: "初始化类保留大小...",
-        fn: this.calculateClassesRetainedSize
+        text: '初始化类保留大小...',
+        fn: this.calculateClassesRetainedSize,
       },
     ];
     // 执行初始化任务
-    initTasks.forEach(task => {
+    initTasks.forEach((task) => {
       this.options.progressCallback?.({
         progress: task.progress,
-        text: task.text
+        text: task.text,
       });
       task.fn();
-    })
+    });
     this.options.progressCallback?.({
       progress: 1,
-      text: "初始化完成"
+      text: '初始化完成',
     });
   };
 
@@ -242,7 +247,7 @@ export class V8SnapshotInfo {
     }
     node.retained_size = node.self_size;
     if (node.type === V8SnapshotNodeTypes.native && (node.name!).indexOf('Detached ') === 0) {
-      (node.flag!) |= V8SnapshotInfo.NODE_FLAGS.detachedDOMTreeNode;
+      node.flag! |= V8SnapshotInfo.NODE_FLAGS.detachedDOMTreeNode;
     }
     return node as V8SnapshotInfoNode;
   };
@@ -292,13 +297,18 @@ export class V8SnapshotInfo {
   };
 
   // 获取edge的field
-  private getEdgeField = (edge_start: number, field_index: number, field_type: V8SnapshotEdgeTypes): string | number => {
+  private getEdgeField = (
+    edge_start: number,
+    field_index: number,
+    field_type: V8SnapshotEdgeTypes,
+  ): string | number => {
     const value = this.snapshot.edges[edge_start + field_index];
     const type = this.snapshot.snapshot.meta.edge_types[field_index];
     if (type === V8SnapshotEdgeTypes.string_or_number) {
-      return (field_type === V8SnapshotEdgeTypes.element || field_type === V8SnapshotEdgeTypes.hidden)
-          ? value
-          : this.snapshot.strings[value];
+      return (field_type === V8SnapshotEdgeTypes.element
+        || field_type === V8SnapshotEdgeTypes.hidden)
+        ? value
+        : this.snapshot.strings[value];
     } if (type === V8SnapshotEdgeTypes.node) {
       return this.getNodeField(value, this.node_fields_idx[V8SnapshotNodeFields.id]);
     } if (Array.isArray(type)) {
@@ -342,18 +352,19 @@ export class V8SnapshotInfo {
   };
 
   // 设置node距离
-  private setNodeChildDistance = (nodesToVisit: V8SnapshotInfoNode[], nodesToVisitLength: number) => {
+  private setNodeChildDistance = (
+    nodesToVisit: V8SnapshotInfoNode[],
+    nodesToVisitLength: number,
+  ) => {
     let index = 0;
-    let node: V8SnapshotInfoNode;
-    let node_to: V8SnapshotInfoNode;
     while (index < nodesToVisitLength) {
-      node = nodesToVisit[index++];
-      // eslint-disable-next-line no-loop-func
+      const node = nodesToVisit[index++];
+      // eslint-disable-next-line @typescript-eslint/no-loop-func
       this.edges[node.id]?.forEach((edge) => {
-        node_to = this.nodes[edge.to_node];
+        const node_to = this.nodes[edge.to_node];
         if (edge.type === V8SnapshotEdgeTypes.weak
                     || node_to.distance !== V8SnapshotInfo.NO_DISTANCE
-                    || !this.nodesDistanceFilter(node_to, edge)) {
+                    || !V8SnapshotInfo.nodesDistanceFilter(node_to, edge)) {
           return;
         }
         node_to.distance = (node.distance) + 1;
@@ -364,7 +375,7 @@ export class V8SnapshotInfo {
   };
 
   // node距离过滤
-  private nodesDistanceFilter = (node: V8SnapshotInfoNode, edge: V8SnapshotInfoEdge) => {
+  static nodesDistanceFilter = (node: V8SnapshotInfoNode, edge: V8SnapshotInfoEdge) => {
     if (node.type === V8SnapshotNodeTypes.hidden) {
       return edge.name_or_index !== 'sloppy_function_map' || node.name !== 'system / NativeContext';
     }
@@ -372,7 +383,7 @@ export class V8SnapshotInfo {
       if (node.name !== '(map descriptors)') {
         return true;
       }
-      const index = typeof edge.name_or_index === "number" ? edge.name_or_index : parseInt(edge.name_or_index, 10);
+      const index = typeof edge.name_or_index === 'number' ? edge.name_or_index : parseInt(edge.name_or_index, 10);
       return index < 2 || (index % 3) !== 1;
     }
     return true;
@@ -400,20 +411,24 @@ export class V8SnapshotInfo {
     while (list.length) {
       const node = (list.pop() as V8SnapshotInfoNode);
       if (node.flag & flag) {
+        // eslint-disable-next-line no-continue
         continue;
       }
       node.flag |= flag;
-      this.edges[node.id]?.forEach(edge => {
+      this.edges[node.id]?.forEach((edge) => {
         const childNode = this.nodes[edge.to_node];
-        if(childNode.flag & flag){
+        if (childNode.flag & flag) {
           return;
-        } else if(edge.type === V8SnapshotEdgeTypes.hidden || edge.type === V8SnapshotEdgeTypes.invisible || edge.type === V8SnapshotEdgeTypes.internal ||edge.type === V8SnapshotEdgeTypes.weak){
+        } if (edge.type === V8SnapshotEdgeTypes.hidden
+          || edge.type === V8SnapshotEdgeTypes.invisible
+          || edge.type === V8SnapshotEdgeTypes.internal
+          || edge.type === V8SnapshotEdgeTypes.weak) {
           return;
         }
         list.push(childNode);
       });
     }
-  }
+  };
 
   // 标记node节点是有页面内对象
   private markPageOwnedNodes() {
@@ -461,11 +476,13 @@ export class V8SnapshotInfo {
 
     let iteration = 0;
     let hasNew = false;
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       ++iteration;
       while (stackTop >= 0) {
         const node = this.nodes[stackNodes[stackTop]];
         hasNew = false;
+        // eslint-disable-next-line @typescript-eslint/no-loop-func
         this.edges[node.id]?.forEach((edge) => {
           if (!this.isEssentialEdge(node.id, edge.type)) {
             return;
@@ -507,6 +524,7 @@ export class V8SnapshotInfo {
       for (let i = 0; i < nodeCount; ++i) {
         const node = this.node_list[i];
         if (visited[node.id] || !this.hasOnlyWeakRetainers(node.id)) {
+          // eslint-disable-next-line no-continue
           continue;
         }
         // Add all nodes that have only weak retainers to traverse their subgraphs.
@@ -519,6 +537,7 @@ export class V8SnapshotInfo {
         });
         errors.push(`${node.name} @${node.id}  weak retainers: ${retainers.join(', ')}`);
       }
+      // eslint-disable-next-line no-console
       console.warn(errors);
     }
 
@@ -541,16 +560,23 @@ export class V8SnapshotInfo {
       }
       this.nodeId2PostOrderIndex[this.root_id] = postOrderIndex;
       this.postOrderIndex2NodeId[postOrderIndex++] = this.root_id;
+      // eslint-disable-next-line no-console
       console.warn(errors);
     }
   };
 
   // 基本必要edge
-  private isEssentialEdge = (nodeId: number, edgeType: V8SnapshotEdgeTypes) => edgeType !== V8SnapshotEdgeTypes.weak
-          && (edgeType !== V8SnapshotEdgeTypes.shortcut || nodeId === this.root_id);
+  private isEssentialEdge = (
+    nodeId: number,
+    edgeType: V8SnapshotEdgeTypes,
+  ) => edgeType !== V8SnapshotEdgeTypes.weak
+    && (edgeType !== V8SnapshotEdgeTypes.shortcut || nodeId === this.root_id);
 
   // 上级只有weak
-  private hasOnlyWeakRetainers = (nodeId: number) => !this.edges_to[nodeId]?.some((edge) => edge.type !== V8SnapshotEdgeTypes.weak && edge.type !== V8SnapshotEdgeTypes.shortcut);
+  private hasOnlyWeakRetainers = (nodeId: number) => !this.edges_to[nodeId]?.some(
+    (edge) => edge.type !== V8SnapshotEdgeTypes.weak
+        && edge.type !== V8SnapshotEdgeTypes.shortcut,
+  );
 
   // 支配树（向上寻找包含node所有引用的父node）
   private buildDominatorTree = () => {
@@ -582,12 +608,14 @@ export class V8SnapshotInfo {
       changed = false;
       for (let postOrderIndex = rootPostOrderedIndex - 1; postOrderIndex >= 0; --postOrderIndex) {
         if (affected[postOrderIndex] === 0) {
+          // eslint-disable-next-line no-continue
           continue;
         }
         affected[postOrderIndex] = 0;
         // If dominator of the entry has already been set to root,
         // then it can't propagate any further.
         if (dominators[postOrderIndex] === rootPostOrderedIndex) {
+          // eslint-disable-next-line no-continue
           continue;
         }
         node = this.nodes[this.postOrderIndex2NodeId[postOrderIndex]];
@@ -683,6 +711,7 @@ export class V8SnapshotInfo {
     // that will be filled.
     let firstDominatedNodeIndex = 0;
     for (let i = 0, l = this.node_list.length; i < l; ++i) {
+      // eslint-disable-next-line no-multi-assign
       const dominatedCount = dominatedNodes[firstDominatedNodeIndex] = indexArray[i];
       indexArray[i] = firstDominatedNodeIndex;
       firstDominatedNodeIndex += dominatedCount;
@@ -720,7 +749,8 @@ export class V8SnapshotInfo {
           self: node[V8SnapshotNodeFields.self_size],
           maxRet: 0,
           type: node.type,
-          name: node.type === V8SnapshotNodeTypes.object || node.type === V8SnapshotNodeTypes.native ? node.name : null,
+          name: node.type === V8SnapshotNodeTypes.object
+          || node.type === V8SnapshotNodeTypes.native ? node.name : null,
           idxs: [index],
         };
         this.aggregatesByClassIndex[classIndex] = value;
@@ -782,8 +812,12 @@ export class V8SnapshotInfo {
     const node = this.node_list[nodeIndex];
     const type = node[V8SnapshotNodeFields.type];
     if (type === V8SnapshotNodeTypes.object || type === V8SnapshotNodeTypes.native) {
-      return this.snapshot.nodes[nodeIndex * this.node_field_count + this.node_fields_idx[V8SnapshotNodeFields.name]];
+      return this.snapshot.nodes[
+        nodeIndex * this.node_field_count + this.node_fields_idx[V8SnapshotNodeFields.name]
+      ];
     }
-    return -1 - this.snapshot.nodes[nodeIndex * this.node_field_count + this.node_fields_idx[V8SnapshotNodeFields.type]];
+    return -1 - this.snapshot.nodes[
+      nodeIndex * this.node_field_count + this.node_fields_idx[V8SnapshotNodeFields.type]
+    ];
   };
 }
