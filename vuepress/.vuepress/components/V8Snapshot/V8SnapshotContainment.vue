@@ -9,9 +9,9 @@
       <div slot="header">
         <div>节点过滤</div>
       </div>
-      <el-form :inline="true">
+      <el-form :inline="true" size="small" :model="nodeFilterForm">
         <el-form-item label="节点类型">
-          <el-select v-model="nodeFilterSelect" placeholder="请选择">
+          <el-select v-model="nodeFilterForm.nodeFilterSelect" placeholder="请选择" style="width: 130px;">
             <el-option
                 v-for="item in nodeFilterOptions"
                 :key="item.value"
@@ -20,10 +20,11 @@
             </el-option>
           </el-select>
           <el-select
-              v-if="nodeFilterSelect === nodeFilterType.customize"
-              v-model="nodeFilterTypesSelect"
+              v-if="nodeFilterForm.nodeFilterSelect === nodeFilterType.customize"
+              v-model="nodeFilterForm.nodeFilterTypesSelect"
               placeholder="请选择"
               multiple
+              clearable
           >
             <el-option
                 v-for="item in nodeFilterTypeOptions"
@@ -35,55 +36,71 @@
         </el-form-item>
         <el-form-item label="名称">
           <el-input
-              placeholder="请输入内容"
-              v-model="nodeFilterName"
+              placeholder="正则表达式"
+              v-model="nodeFilterForm.nodeFilterName"
               clearable>
           </el-input>
         </el-form-item>
         <el-form-item label="最短根距离">
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterDistanceMin"
-              clearable>
-          </el-input>
-          -
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterDistanceMax"
-              clearable>
-          </el-input>
+          <div>
+            <el-input
+                type="number"
+                placeholder="大于等于"
+                v-model="nodeFilterForm.nodeFilterDistanceMin"
+                clearable
+                style="width: 130px"
+            >
+            </el-input>
+            -
+            <el-input
+                type="number"
+                placeholder="小于"
+                v-model="nodeFilterForm.nodeFilterDistanceMax"
+                clearable
+                style="width: 130px">
+            </el-input>
+          </div>
         </el-form-item>
         <el-form-item label="自身大小">
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterSelfSizeMin"
-              clearable>
-          </el-input>
-          -
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterSelfSizeMax"
-              clearable>
-          </el-input>
+          <div>
+            <el-input
+                type="number"
+                placeholder="大于等于"
+                v-model="nodeFilterForm.nodeFilterSelfSizeMin"
+                clearable
+                style="width: 130px">
+            </el-input>
+            -
+            <el-input
+                type="number"
+                placeholder="小于"
+                v-model="nodeFilterForm.nodeFilterSelfSizeMax"
+                clearable
+                style="width: 130px">
+            </el-input>
+          </div>
         </el-form-item>
         <el-form-item label="总大小">
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterRetainedSizeMin"
-              clearable>
-          </el-input>
-          -
-          <el-input
-              type="number"
-              placeholder="请输入内容"
-              v-model="nodeFilterRetainedSizeMax"
-              clearable>
-          </el-input>
+          <div>
+            <el-input
+                type="number"
+                placeholder="大于等于"
+                v-model="nodeFilterForm.nodeFilterRetainedSizeMin"
+                clearable
+                style="width: 130px">
+            </el-input>
+            -
+            <el-input
+                type="number"
+                placeholder="小于"
+                v-model="nodeFilterForm.nodeFilterRetainedSizeMax"
+                clearable
+                style="width: 130px">
+            </el-input>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onFilter">提交</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -127,18 +144,18 @@
               <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
             </template>
           </el-table-column>
-          <el-table-column prop="distance" sortable label="最短根距离" align="right">
+          <el-table-column prop="distance" sortable label="最短根距离" align="right" width="150px">
             <template slot-scope="scope">
               <span>{{ scope.row.distanceShow }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="self_size" sortable label="自身大小" align="right">
+          <el-table-column prop="self_size" sortable label="自身大小" align="right" width="150px">
             <template slot-scope="scope">
               <span>{{ scope.row.self_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
             </template>
           </el-table-column>
-          <el-table-column prop="retained_size" sortable label="总大小" align="right">
+          <el-table-column prop="retained_size" sortable label="总大小" align="right" width="150px">
             <template slot-scope="scope">
               <span>{{ scope.row.retained_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
@@ -175,18 +192,18 @@
                   <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="distance" sortable label="最短根距离" align="right">
+              <el-table-column prop="distance" sortable label="最短根距离" align="right" width="150px">
                 <template slot-scope="scope">
                   <span>{{ scope.row.distanceShow }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="self_size" sortable label="自身大小" align="right">
+              <el-table-column prop="self_size" sortable label="自身大小" align="right" width="150px">
                 <template slot-scope="scope">
                   <span>{{ scope.row.self_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="retained_size" sortable label="总大小" align="right">
+              <el-table-column prop="retained_size" sortable label="总大小" align="right" width="150px">
                 <template slot-scope="scope">
                   <span>{{ scope.row.retained_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
@@ -202,31 +219,43 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import { getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions } from './utils';
+import { getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions, V8SnapshotInfo } from './utils';
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
   name: "V8SnapshotContainment",
   data(){
     return {
+      nodeFilterSelect: nodeFilterType.userObject,
+      nodeFilterTypesSelect: [],
+      nodeFilterName: "",
       nodeFilterDistanceMin: null,
       nodeFilterDistanceMax: null,
       nodeFilterSelfSizeMin: null,
       nodeFilterSelfSizeMax: null,
       nodeFilterRetainedSizeMin: null,
       nodeFilterRetainedSizeMax: null,
-      nodeFilterName: "",
+      nodeFilterForm: {
+        nodeFilterSelect: nodeFilterType.userObject,
+        nodeFilterTypesSelect: [],
+        nodeFilterName: "",
+        nodeFilterDistanceMin: null,
+        nodeFilterDistanceMax: null,
+        nodeFilterSelfSizeMin: null,
+        nodeFilterSelfSizeMax: null,
+        nodeFilterRetainedSizeMin: null,
+        nodeFilterRetainedSizeMax: null,
+      },
       nodeFilterType,
-      nodeFilterSelect: nodeFilterType.userObject,
       currentNode: null,
       nodeFilterOptions,
       nodeFilterTypeOptions,
-      nodeFilterTypesSelect: []
+      rootId: -1,
     };
   },
   computed: {
     rootList(){
-      return this.getNodeChildren();
+      return this.getNodeChildren(this.rootId);
     },
     totalSize(){
       return ( this.activeSnapshot && this.activeSnapshot.snapshot && this.activeSnapshot.snapshot.calculateStatistics().total) || 9999999999;
@@ -245,17 +274,55 @@ export default {
       const result = this.getNodeChildren(tree.id );
       resolve(result);
     },
+    onFilter(){
+      this.nodeFilterSelect = this.nodeFilterForm.nodeFilterSelect;
+      this.nodeFilterTypesSelect = [].concat([], this.nodeFilterForm.nodeFilterTypesSelect);
+      this.nodeFilterName = this.nodeFilterForm.nodeFilterName && new RegExp(this.nodeFilterForm.nodeFilterName);
+      this.nodeFilterDistanceMin = this.nodeFilterForm.nodeFilterDistanceMin;
+      this.nodeFilterDistanceMax = this.nodeFilterForm.nodeFilterDistanceMax;
+      this.nodeFilterSelfSizeMin = this.nodeFilterForm.nodeFilterSelfSizeMin;
+      this.nodeFilterSelfSizeMax = this.nodeFilterForm.nodeFilterSelfSizeMax;
+      this.nodeFilterRetainedSizeMin = this.nodeFilterForm.nodeFilterRetainedSizeMin;
+      this.nodeFilterRetainedSizeMax = this.nodeFilterForm.nodeFilterRetainedSizeMax;
+      this.currentNode = null;
+      this.rootId = this.rootId - 1;
+    },
+    filterItem(item){
+      if(!item || !item.node) {
+        return false;
+      } else if(this.nodeFilterSelect === nodeFilterType.userObject && !(item.node.flag & V8SnapshotInfo.NODE_FLAGS.canBeQueried)){
+        return false;
+      } else if (this.nodeFilterSelect === nodeFilterType.customize && !this.nodeFilterTypesSelect.includes(item.node.type)){
+        return false;
+      } else if (this.nodeFilterName && !this.nodeFilterName.test(item.node.name)){
+        return false;
+      } else if ((this.nodeFilterDistanceMin || this.nodeFilterDistanceMin === 0) && item.node.distance < this.nodeFilterDistanceMin){
+        return false;
+      } else if ((this.nodeFilterDistanceMax || this.nodeFilterDistanceMax === 0) && item.node.distance >= this.nodeFilterDistanceMax){
+        return false;
+      } else if ((this.nodeFilterSelfSizeMin || this.nodeFilterSelfSizeMin === 0) && item.node.self_size < this.nodeFilterSelfSizeMin){
+        return false;
+      } else if ((this.nodeFilterSelfSizeMax || this.nodeFilterSelfSizeMax === 0) && item.node.self_size >= this.nodeFilterSelfSizeMax){
+        return false;
+      } else if ((this.nodeFilterRetainedSizeMin || this.nodeFilterRetainedSizeMin === 0) && item.node.retained_size < this.nodeFilterRetainedSizeMin){
+        return false;
+      } else if ((this.nodeFilterRetainedSizeMax || this.nodeFilterRetainedSizeMax === 0) && item.node.retained_size >= this.nodeFilterRetainedSizeMax){
+        return false;
+      } else {
+        return true;
+      }
+    },
     getNodeChildren(nodeId){
       if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
         return [];
       }
-      return this.activeSnapshot.snapshot.getNodeChildren(nodeId).map((item) => {
+      return this.activeSnapshot.snapshot.getNodeChildren(nodeId).filter(item => this.filterItem(item)).map((item) => {
         const {node, edge} = item;
-        const edges = this.activeSnapshot.snapshot.snapshot_info.edges[node.id];
+        const children = this.activeSnapshot.snapshot.getNodeChildren(node.id).filter(v => this.filterItem(v));
         return {
           ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
           rowKey: `${edge.name_or_index}_${edge.to_node}`,
-          hasChildren: !!(edges && edges.length)
+          hasChildren: !!children.length
         }
       });
     },
@@ -271,17 +338,17 @@ export default {
       if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
         return [];
       }
-      return this.activeSnapshot.snapshot.getNodeParents(nodeId).map((item) => {
+      return this.activeSnapshot.snapshot.getNodeParents(nodeId).filter(item => this.filterItem(item)).map((item) => {
         const {node, edge} = item;
-        const edges = this.activeSnapshot.snapshot.snapshot_info.edges_to[node.id];
+        const parents = this.activeSnapshot.snapshot.getNodeParents(node.id).filter(v => this.filterItem(v));
         return {
           ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
           rowKey: `${edge.name_or_index}_${edge.from_node}`,
-          hasParents: !!(edges && edges.length)
+          hasParents: !!(parents.length)
         }
       });
     },
-    handleCurrentChange(currentRow, oldCurrentRow){
+    handleCurrentChange(currentRow){
       this.currentNode = currentRow;
     }
   }

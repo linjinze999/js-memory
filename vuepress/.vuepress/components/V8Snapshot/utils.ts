@@ -5,6 +5,7 @@ import {
     V8SnapshotInfoEdge,
     V8SnapshotInfoNode
 } from "../../../../src";
+export {V8SnapshotInfo} from "../../../../src";
 
 export function getNodeShowInfo(params: { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode, totalSize: number }){
     const {edge, node, totalSize} = params;

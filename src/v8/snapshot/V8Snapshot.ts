@@ -95,7 +95,7 @@ export class V8Snapshot {
 
   // 获取子节点
   public getNodeChildren = (nodeId?: number): { edge: V8SnapshotInfoEdge, node: V8SnapshotInfoNode }[] => {
-    let node_id = nodeId === undefined ? this.snapshot_info.root_id : nodeId;
+    let node_id = nodeId === undefined || nodeId < 0 ? this.snapshot_info.root_id : nodeId;
     return this.snapshot_info.edges[node_id]?.map(edge => {
       return {
         edge,
