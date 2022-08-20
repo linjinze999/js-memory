@@ -59,6 +59,8 @@ module.exports = {
               collapsable: false,
               children: [
                 'profile/chart',
+                'profile/tree',
+                'profile/heavy',
               ]
             },
           ]
