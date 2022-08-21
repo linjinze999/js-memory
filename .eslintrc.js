@@ -15,8 +15,9 @@ module.exports = {
     parser: '@typescript-eslint/parser',
     sourceType: 'module',
     project: "tsconfig.eslint.json",
-    extraFileExtensions: ['.vue']
+    extraFileExtensions: ['.vue', '.md']
   },
+  ignorePatterns: ['dist', 'docs', '!vuepress/.vuepress', 'vuepress/**/*.md'],
   plugins: [
     'vue',
     '@typescript-eslint',

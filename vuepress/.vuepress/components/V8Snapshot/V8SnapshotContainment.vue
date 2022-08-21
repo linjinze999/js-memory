@@ -23,20 +23,20 @@
                 :value="item.value">
             </el-option>
           </el-select>
-          <el-select
-              v-if="nodeFilterForm.nodeFilterSelect === nodeFilterType.customize"
-              v-model="nodeFilterForm.nodeFilterTypesSelect"
-              placeholder="请选择"
-              multiple
-              clearable
-          >
-            <el-option
-                v-for="item in nodeFilterTypeOptions"
-                :key="item"
-                :label="item"
-                :value="item">
-            </el-option>
-          </el-select>
+<!--          <el-select-->
+<!--              v-if="nodeFilterForm.nodeFilterSelect === nodeFilterType.customize"-->
+<!--              v-model="nodeFilterForm.nodeFilterTypesSelect"-->
+<!--              placeholder="请选择"-->
+<!--              multiple-->
+<!--              clearable-->
+<!--          >-->
+<!--            <el-option-->
+<!--                v-for="item in nodeFilterTypeOptions"-->
+<!--                :key="item"-->
+<!--                :label="item"-->
+<!--                :value="item">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
         </el-form-item>
         <el-form-item label="名称">
           <el-input
@@ -208,22 +208,22 @@
             >
               <el-table-column prop="name" sortable label="对象">
                 <template slot-scope="scope">
-              <span :style="scope.row.nameShowPrefixStyle">
-                {{ scope.row.nameShowPrefix }}
-              </span>
+                  <span :style="scope.row.nameShowPrefixStyle">
+                    {{ scope.row.nameShowPrefix }}
+                  </span>
                   <span>&nbsp;::&nbsp;</span>
                   <span :style="scope.row.nameShowStyle">
-                {{ scope.row.nameShow }}
-              </span>
+                    {{ scope.row.nameShow }}
+                  </span>
                   <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
                   <span
                       v-if="scope.row.reachableFromWindow"
                       title="可通过window访问的用户对象"
-                  > 🀆</span>
+                  >&nbsp;🀆</span>
                   <span
                       v-if="scope.row.detachedDOMTreeNode"
                       title="脱离Dom树"
-                  > 🀆</span>
+                  >&nbsp;🀆</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -270,7 +270,14 @@
 <script>
 import { createNamespacedHelpers } from 'vuex';
 import {
-  getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions, V8SnapshotInfo,
+  filterUserObject,
+  getNodeShowInfo,
+  nodeFilterOptions,
+  nodeFilterType,
+  // nodeFilterTypeOptions,
+  V8SnapshotInfo,
+  // V8SnapshotEdgeTypes,
+  // V8SnapshotNodeTypes
 } from './utils';
 
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
@@ -280,7 +287,7 @@ export default {
   data() {
     return {
       nodeFilterSelect: nodeFilterType.userObject,
-      nodeFilterTypesSelect: [],
+      // nodeFilterTypesSelect: [],
       nodeFilterName: '',
       nodeFilterDistanceMin: null,
       nodeFilterDistanceMax: null,
@@ -290,7 +297,7 @@ export default {
       nodeFilterRetainedSizeMax: null,
       nodeFilterForm: {
         nodeFilterSelect: nodeFilterType.userObject,
-        nodeFilterTypesSelect: [],
+        // nodeFilterTypesSelect: [],
         nodeFilterName: '',
         nodeFilterDistanceMin: null,
         nodeFilterDistanceMax: null,
@@ -302,7 +309,7 @@ export default {
       nodeFilterType,
       currentNode: null,
       nodeFilterOptions,
-      nodeFilterTypeOptions,
+      // nodeFilterTypeOptions,
       rootId: -1,
     };
   },
@@ -332,10 +339,10 @@ export default {
     },
     onFilter() {
       this.nodeFilterSelect = this.nodeFilterForm.nodeFilterSelect;
-      this.nodeFilterTypesSelect = [].concat(
-        [],
-        this.nodeFilterForm.nodeFilterTypesSelect,
-      );
+      // this.nodeFilterTypesSelect = [].concat(
+      //   [],
+      //   this.nodeFilterForm.nodeFilterTypesSelect,
+      // );
       this.nodeFilterName = this.nodeFilterForm.nodeFilterName
           && new RegExp(this.nodeFilterForm.nodeFilterName);
       this.nodeFilterDistanceMin = this.nodeFilterForm.nodeFilterDistanceMin;
@@ -350,30 +357,43 @@ export default {
     filterItem(item) {
       if (!item || !item.node) {
         return false;
-      } if (this.nodeFilterSelect === nodeFilterType.userObject
+      }
+      if (this.nodeFilterSelect === nodeFilterType.userObject
+          && !filterUserObject(item)) {
+        return false;
+      }
+      if (this.nodeFilterSelect === nodeFilterType.showObject
           && !(item.node.flag & V8SnapshotInfo.NODE_FLAGS.canBeQueried)) {
         return false;
-      } if (this.nodeFilterSelect === nodeFilterType.customize
-          && !this.nodeFilterTypesSelect.includes(item.node.type)) {
+      }
+      // if (this.nodeFilterSelect === nodeFilterType.customize
+      //     && !this.nodeFilterTypesSelect.includes(item.node.type)) {
+      //   return false;
+      // }
+      if (this.nodeFilterName && !this.nodeFilterName.test(item.node.name)) {
         return false;
-      } if (this.nodeFilterName && !this.nodeFilterName.test(item.node.name)) {
-        return false;
-      } if ((this.nodeFilterDistanceMin || this.nodeFilterDistanceMin === 0)
+      }
+      if ((this.nodeFilterDistanceMin || this.nodeFilterDistanceMin === 0)
           && item.node.distance < this.nodeFilterDistanceMin) {
         return false;
-      } if ((this.nodeFilterDistanceMax || this.nodeFilterDistanceMax === 0)
+      }
+      if ((this.nodeFilterDistanceMax || this.nodeFilterDistanceMax === 0)
           && item.node.distance >= this.nodeFilterDistanceMax) {
         return false;
-      } if ((this.nodeFilterSelfSizeMin || this.nodeFilterSelfSizeMin === 0)
+      }
+      if ((this.nodeFilterSelfSizeMin || this.nodeFilterSelfSizeMin === 0)
           && item.node.self_size < this.nodeFilterSelfSizeMin) {
         return false;
-      } if ((this.nodeFilterSelfSizeMax || this.nodeFilterSelfSizeMax === 0)
+      }
+      if ((this.nodeFilterSelfSizeMax || this.nodeFilterSelfSizeMax === 0)
           && item.node.self_size >= this.nodeFilterSelfSizeMax) {
         return false;
-      } if ((this.nodeFilterRetainedSizeMin || this.nodeFilterRetainedSizeMin === 0)
+      }
+      if ((this.nodeFilterRetainedSizeMin || this.nodeFilterRetainedSizeMin === 0)
           && item.node.retained_size < this.nodeFilterRetainedSizeMin) {
         return false;
-      } if ((this.nodeFilterRetainedSizeMax || this.nodeFilterRetainedSizeMax === 0)
+      }
+      if ((this.nodeFilterRetainedSizeMax || this.nodeFilterRetainedSizeMax === 0)
           && item.node.retained_size >= this.nodeFilterRetainedSizeMax) {
         return false;
       }

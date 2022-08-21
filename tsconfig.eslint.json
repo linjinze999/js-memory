@@ -2,7 +2,9 @@
   "extends": "./tsconfig.json",
   "include": [
     "src",
-    "./vuepress/.vuepress/**/*.ts",
-    "./vuepress/.vuepress/**/*.vue"
+    "vuepress/**/*.md",
+    "vuepress/.vuepress/**/*.js",
+    "vuepress/.vuepress/**/*.ts",
+    "vuepress/.vuepress/**/*.vue"
   ]
 }

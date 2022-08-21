@@ -1,5 +1,4 @@
 import Vuex from 'vuex';
-import store from './store'
 import {
   // Pagination,
   // Dialog,
@@ -43,8 +42,8 @@ import {
   // Alert,
   // Slider,
   // Icon,
-  // Row,
-  // Col,
+  Row,
+  Col,
   // Upload,
   // Progress,
   // Spinner,
@@ -90,6 +89,8 @@ import {
 } from 'echarts/components';
 // import { LabelLayout, UniversalTransition } from 'echarts/features';
 import { CanvasRenderer } from 'echarts/renderers';
+import store from './store';
+
 echarts.use([
   TooltipComponent,
   ToolboxComponent,
@@ -97,11 +98,11 @@ echarts.use([
   PieChart,
   // LabelLayout,
   // UniversalTransition,
-  CanvasRenderer
+  CanvasRenderer,
 ]);
 
-export default ({ Vue, options, router, isServer }) => {
-  console.log("echarts",echarts)
+/* eslint-disable no-param-reassign */
+export default ({ Vue, options }) => {
   Vue.prototype.$echarts = echarts;
   Vue.use(Vuex);
   options.store = new Vuex.Store(store);
@@ -148,8 +149,8 @@ export default ({ Vue, options, router, isServer }) => {
   // Vue.use(Alert);
   // Vue.use(Slider);
   // Vue.use(Icon);
-  // Vue.use(Row);
-  // Vue.use(Col);
+  Vue.use(Row);
+  Vue.use(Col);
   // Vue.use(Upload);
   // Vue.use(Progress);
   // Vue.use(Spinner);

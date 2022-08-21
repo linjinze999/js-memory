@@ -13,8 +13,9 @@
           v-loading="item.progress < 1"
           :element-loading-text="item.progressText"
           @click="updateActive(item)"
+          :title="item.name"
       >
-        {{item.name}}
+        <span class="text">{{item.name}}</span>
         <i v-if="item.id !== 1" class="el-icon-delete delete" @click="onRemove(item)"></i>
       </div>
       <i class="el-icon-plus item add" @click="showInput"></i>
@@ -91,15 +92,23 @@ export default {
     border: 1px dashed #c0ccda;
     border-radius: 6px;
     box-sizing: border-box;
-    width: 148px;
-    height: 148px;
+    width: 200px;
+    height: 50px;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 5px;
-    padding: 10px;
-    word-break: break-all;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    .text {
+      //display: -webkit-box;
+      //-webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      //-webkit-line-clamp: 2;
+    }
 
     &:hover, &:focus{
       border-color: #409eff;
