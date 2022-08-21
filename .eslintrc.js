@@ -5,9 +5,9 @@ module.exports = {
     es2021: true,
   },
   extends: [
+    'plugin:vue/essential',
     'airbnb-base',
     'airbnb-typescript/base',
-    'plugin:vue/essential',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -38,6 +38,7 @@ module.exports = {
       }
     ],
     'no-plusplus': 'off',
-    'no-bitwise': 'off'
+    'no-bitwise': 'off',
+    'no-nested-ternary': 'off'
   },
 };
