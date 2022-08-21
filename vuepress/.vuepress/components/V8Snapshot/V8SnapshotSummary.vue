@@ -18,14 +18,15 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
+
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
-  name: "V8SnapshotSummary",
+  name: 'V8SnapshotSummary',
   computed: {
-    ...mapGetters(["activeSnapshot"])
+    ...mapGetters(['activeSnapshot']),
   },
-}
+};
 </script>
 
 <style scoped lang="scss">

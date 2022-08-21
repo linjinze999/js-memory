@@ -6,7 +6,10 @@
     <br/>
     <el-card>
       <div slot="header">
-        <div v-if="activeSnapshot && activeSnapshotStatistics">{{activeSnapshot.name}}：{{Math.round(activeSnapshotStatistics.total / 1000).toLocaleString()}}KB</div>
+        <div v-if="activeSnapshot && activeSnapshotStatistics">
+          {{activeSnapshot.name}}：
+          {{Math.round(activeSnapshotStatistics.total / 1000).toLocaleString()}}KB
+        </div>
         <div v-else>未选择</div>
       </div>
       <div class="echarts-wrap">
@@ -18,13 +21,16 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
+
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
   name: 'V8SnapshotStatistics',
   computed: {
-    activeSnapshotStatistics(){
-      return this.activeSnapshot && this.activeSnapshot.snapshot ? this.activeSnapshot.snapshot.calculateStatistics() : null;
+    activeSnapshotStatistics() {
+      return this.activeSnapshot && this.activeSnapshot.snapshot
+          ? this.activeSnapshot.snapshot.calculateStatistics()
+          : null;
       // {
       //   total: 0, // 总计
       //   native: 0, // 类型化数组
@@ -35,16 +41,16 @@ export default {
       //   others: 0 // 其他
       // };
     },
-    ...mapGetters(["activeSnapshot"])
+    ...mapGetters(['activeSnapshot']),
   },
-  watch:{
-    activeSnapshotStatistics(newValue){
+  watch: {
+    activeSnapshotStatistics(newValue) {
       this.initEcharts(newValue);
-    }
+    },
   },
-  methods:{
-    initEcharts(activeSnapshotStatistics){
-      if(!this.activeSnapshot || !activeSnapshotStatistics){
+  methods: {
+    initEcharts(activeSnapshotStatistics) {
+      if (!this.activeSnapshot || !activeSnapshotStatistics) {
         return;
       }
       const statistics = activeSnapshotStatistics;
@@ -54,7 +60,7 @@ export default {
         { value: statistics.array, name: 'js数组' },
         { value: statistics.native, name: '类型化数组' },
         { value: statistics.system, name: '系统对象' },
-        { value: statistics.others, name: '其他' }
+        { value: statistics.others, name: '其他' },
       ];
       const myChart = this.$echarts.init(document.getElementById('echarts'));
       const option = {
@@ -67,29 +73,31 @@ export default {
           '#cccccc',
           '#fc8452',
           '#9a60b4',
-          '#ea7ccc'
+          '#ea7ccc',
         ],
         toolbox: {
           show: true,
           right: 50,
           feature: {
             mark: { show: true },
-            dataView: { show: true, readOnly: true, lang: ['数据视图', '关闭', '刷新'], title: '数据视图' },
-            saveAsImage: { show: true, title: '保存为图片' }
-          }
+            dataView: {
+              show: true, readOnly: true, lang: ['数据视图', '关闭', '刷新'], title: '数据视图',
+            },
+            saveAsImage: { show: true, title: '保存为图片' },
+          },
         },
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
         },
         legend: {
           top: 'bottom',
           // top: 'center',
           // left: 'left',
           // orient: 'vertical',
-          formatter: function (name) {
-            const value = data.find(v => v.name === name).value;
-            return `${name}（${Math.round(value * 100 / statistics.total)}%，${Math.round(value/1000).toLocaleString()}KB）`;
-          }
+          formatter(name) {
+            const { value } = data.find((v) => v.name === name);
+            return `${name}（${Math.round((value * 100) / statistics.total)}%，${Math.round(value / 1000).toLocaleString()}KB）`;
+          },
         },
         series: [
           {
@@ -100,25 +108,25 @@ export default {
             itemStyle: {
               borderRadius: 4,
               borderColor: '#fff',
-              borderWidth: 2
+              borderWidth: 2,
             },
             emphasis: {
               label: {
                 show: true,
                 fontSize: '15',
-                fontWeight: 'bold'
-              }
+                fontWeight: 'bold',
+              },
             },
-            data: data
-          }
-        ]
+            data,
+          },
+        ],
       };
       myChart.setOption(option);
-    }
+    },
   },
   mounted() {
     this.initEcharts(this.activeSnapshotStatistics);
-  }
+  },
 };
 </script>
 

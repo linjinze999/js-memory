@@ -11,7 +11,11 @@
       </div>
       <el-form :inline="true" size="small" :model="nodeFilterForm">
         <el-form-item label="节点类型">
-          <el-select v-model="nodeFilterForm.nodeFilterSelect" placeholder="请选择" style="width: 130px;">
+          <el-select
+              v-model="nodeFilterForm.nodeFilterSelect"
+              placeholder="请选择"
+              style="width: 130px;"
+          >
             <el-option
                 v-for="item in nodeFilterOptions"
                 :key="item.value"
@@ -140,22 +144,46 @@
                 {{ scope.row.nameShow }}
               </span>
               <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
-              <span v-if="scope.row.reachableFromWindow" title="可通过window访问的用户对象"> 🀆</span>
-              <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
+              <span
+                  v-if="scope.row.reachableFromWindow"
+                  title="可通过window访问的用户对象"
+              > 🀆</span>
+              <span
+                  v-if="scope.row.detachedDOMTreeNode"
+                  title="脱离Dom树"
+              > 🀆</span>
             </template>
           </el-table-column>
-          <el-table-column prop="distance" sortable label="最短根距离" align="right" width="150px">
+          <el-table-column
+              prop="distance"
+              sortable
+              label="最短根距离"
+              align="right"
+              width="150px"
+          >
             <template slot-scope="scope">
               <span>{{ scope.row.distanceShow }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="self_size" sortable label="自身大小" align="right" width="150px">
+          <el-table-column
+              prop="self_size"
+              sortable
+              label="自身大小"
+              align="right"
+              width="150px"
+          >
             <template slot-scope="scope">
               <span>{{ scope.row.self_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
             </template>
           </el-table-column>
-          <el-table-column prop="retained_size" sortable label="总大小" align="right" width="150px">
+          <el-table-column
+              prop="retained_size"
+              sortable
+              label="总大小"
+              align="right"
+              width="150px"
+          >
             <template slot-scope="scope">
               <span>{{ scope.row.retained_size }}</span>
               <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
@@ -188,22 +216,44 @@
                 {{ scope.row.nameShow }}
               </span>
                   <span class="sub-text">&nbsp;@{{scope.row.id}}</span>
-                  <span v-if="scope.row.reachableFromWindow" title="可通过window访问的用户对象"> 🀆</span>
-                  <span v-if="scope.row.detachedDOMTreeNode" title="脱离Dom树"> 🀆</span>
+                  <span
+                      v-if="scope.row.reachableFromWindow"
+                      title="可通过window访问的用户对象"
+                  > 🀆</span>
+                  <span
+                      v-if="scope.row.detachedDOMTreeNode"
+                      title="脱离Dom树"
+                  > 🀆</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="distance" sortable label="最短根距离" align="right" width="150px">
+              <el-table-column
+                  prop="distance"
+                  sortable
+                  label="最短根距离"
+                  align="right"
+                  width="150px"
+              >
                 <template slot-scope="scope">
                   <span>{{ scope.row.distanceShow }}</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="self_size" sortable label="自身大小" align="right" width="150px">
+              <el-table-column
+                  prop="self_size"
+                  sortable label="自身大小"
+                  align="right"
+                  width="150px"
+              >
                 <template slot-scope="scope">
                   <span>{{ scope.row.self_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.selfSizePercent}}%</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="retained_size" sortable label="总大小" align="right" width="150px">
+              <el-table-column
+                  prop="retained_size"
+                  sortable label="总大小"
+                  align="right"
+                  width="150px"
+              >
                 <template slot-scope="scope">
                   <span>{{ scope.row.retained_size }}</span>
                   <span class="sub-text">&nbsp;&nbsp;{{scope.row.retainedSizePercent}}%</span>
@@ -219,16 +269,19 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex';
-import { getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions, V8SnapshotInfo } from './utils';
+import {
+  getNodeShowInfo, nodeFilterOptions, nodeFilterType, nodeFilterTypeOptions, V8SnapshotInfo,
+} from './utils';
+
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
 
 export default {
-  name: "V8SnapshotContainment",
-  data(){
+  name: 'V8SnapshotContainment',
+  data() {
     return {
       nodeFilterSelect: nodeFilterType.userObject,
       nodeFilterTypesSelect: [],
-      nodeFilterName: "",
+      nodeFilterName: '',
       nodeFilterDistanceMin: null,
       nodeFilterDistanceMax: null,
       nodeFilterSelfSizeMin: null,
@@ -238,7 +291,7 @@ export default {
       nodeFilterForm: {
         nodeFilterSelect: nodeFilterType.userObject,
         nodeFilterTypesSelect: [],
-        nodeFilterName: "",
+        nodeFilterName: '',
         nodeFilterDistanceMin: null,
         nodeFilterDistanceMax: null,
         nodeFilterSelfSizeMin: null,
@@ -254,30 +307,37 @@ export default {
     };
   },
   computed: {
-    rootList(){
+    rootList() {
       return this.getNodeChildren(this.rootId);
     },
-    totalSize(){
-      return ( this.activeSnapshot && this.activeSnapshot.snapshot && this.activeSnapshot.snapshot.calculateStatistics().total) || 9999999999;
+    totalSize() {
+      return (this.activeSnapshot
+          && this.activeSnapshot.snapshot
+          && this.activeSnapshot.snapshot.calculateStatistics().total)
+          || 9999999999;
     },
-    currentNodeParents(){
+    currentNodeParents() {
       return this.currentNode ? this.getNodeParents(this.currentNode.id) : [];
     },
-    ...mapGetters(["activeSnapshot"])
+    ...mapGetters(['activeSnapshot']),
   },
   methods: {
     load(tree, treeNode, resolve) {
-      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
         resolve([]);
         return;
       }
-      const result = this.getNodeChildren(tree.id );
+      const result = this.getNodeChildren(tree.id);
       resolve(result);
     },
-    onFilter(){
+    onFilter() {
       this.nodeFilterSelect = this.nodeFilterForm.nodeFilterSelect;
-      this.nodeFilterTypesSelect = [].concat([], this.nodeFilterForm.nodeFilterTypesSelect);
-      this.nodeFilterName = this.nodeFilterForm.nodeFilterName && new RegExp(this.nodeFilterForm.nodeFilterName);
+      this.nodeFilterTypesSelect = [].concat(
+        [],
+        this.nodeFilterForm.nodeFilterTypesSelect,
+      );
+      this.nodeFilterName = this.nodeFilterForm.nodeFilterName
+          && new RegExp(this.nodeFilterForm.nodeFilterName);
       this.nodeFilterDistanceMin = this.nodeFilterForm.nodeFilterDistanceMin;
       this.nodeFilterDistanceMax = this.nodeFilterForm.nodeFilterDistanceMax;
       this.nodeFilterSelfSizeMin = this.nodeFilterForm.nodeFilterSelfSizeMin;
@@ -285,74 +345,91 @@ export default {
       this.nodeFilterRetainedSizeMin = this.nodeFilterForm.nodeFilterRetainedSizeMin;
       this.nodeFilterRetainedSizeMax = this.nodeFilterForm.nodeFilterRetainedSizeMax;
       this.currentNode = null;
-      this.rootId = this.rootId - 1;
+      this.rootId -= 1;
     },
-    filterItem(item){
-      if(!item || !item.node) {
+    filterItem(item) {
+      if (!item || !item.node) {
         return false;
-      } else if(this.nodeFilterSelect === nodeFilterType.userObject && !(item.node.flag & V8SnapshotInfo.NODE_FLAGS.canBeQueried)){
+      } if (this.nodeFilterSelect === nodeFilterType.userObject
+          && !(item.node.flag & V8SnapshotInfo.NODE_FLAGS.canBeQueried)) {
         return false;
-      } else if (this.nodeFilterSelect === nodeFilterType.customize && !this.nodeFilterTypesSelect.includes(item.node.type)){
+      } if (this.nodeFilterSelect === nodeFilterType.customize
+          && !this.nodeFilterTypesSelect.includes(item.node.type)) {
         return false;
-      } else if (this.nodeFilterName && !this.nodeFilterName.test(item.node.name)){
+      } if (this.nodeFilterName && !this.nodeFilterName.test(item.node.name)) {
         return false;
-      } else if ((this.nodeFilterDistanceMin || this.nodeFilterDistanceMin === 0) && item.node.distance < this.nodeFilterDistanceMin){
+      } if ((this.nodeFilterDistanceMin || this.nodeFilterDistanceMin === 0)
+          && item.node.distance < this.nodeFilterDistanceMin) {
         return false;
-      } else if ((this.nodeFilterDistanceMax || this.nodeFilterDistanceMax === 0) && item.node.distance >= this.nodeFilterDistanceMax){
+      } if ((this.nodeFilterDistanceMax || this.nodeFilterDistanceMax === 0)
+          && item.node.distance >= this.nodeFilterDistanceMax) {
         return false;
-      } else if ((this.nodeFilterSelfSizeMin || this.nodeFilterSelfSizeMin === 0) && item.node.self_size < this.nodeFilterSelfSizeMin){
+      } if ((this.nodeFilterSelfSizeMin || this.nodeFilterSelfSizeMin === 0)
+          && item.node.self_size < this.nodeFilterSelfSizeMin) {
         return false;
-      } else if ((this.nodeFilterSelfSizeMax || this.nodeFilterSelfSizeMax === 0) && item.node.self_size >= this.nodeFilterSelfSizeMax){
+      } if ((this.nodeFilterSelfSizeMax || this.nodeFilterSelfSizeMax === 0)
+          && item.node.self_size >= this.nodeFilterSelfSizeMax) {
         return false;
-      } else if ((this.nodeFilterRetainedSizeMin || this.nodeFilterRetainedSizeMin === 0) && item.node.retained_size < this.nodeFilterRetainedSizeMin){
+      } if ((this.nodeFilterRetainedSizeMin || this.nodeFilterRetainedSizeMin === 0)
+          && item.node.retained_size < this.nodeFilterRetainedSizeMin) {
         return false;
-      } else if ((this.nodeFilterRetainedSizeMax || this.nodeFilterRetainedSizeMax === 0) && item.node.retained_size >= this.nodeFilterRetainedSizeMax){
+      } if ((this.nodeFilterRetainedSizeMax || this.nodeFilterRetainedSizeMax === 0)
+          && item.node.retained_size >= this.nodeFilterRetainedSizeMax) {
         return false;
-      } else {
-        return true;
       }
+      return true;
     },
-    getNodeChildren(nodeId){
-      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+    getNodeChildren(nodeId) {
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
         return [];
       }
-      return this.activeSnapshot.snapshot.getNodeChildren(nodeId).filter(item => this.filterItem(item)).map((item) => {
-        const {node, edge} = item;
-        const children = this.activeSnapshot.snapshot.getNodeChildren(node.id).filter(v => this.filterItem(v));
-        return {
-          ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
-          rowKey: `${edge.name_or_index}_${edge.to_node}`,
-          hasChildren: !!children.length
-        }
-      });
+      return this.activeSnapshot.snapshot
+        .getNodeChildren(nodeId)
+        .filter((item) => this.filterItem(item))
+        .map((item) => {
+          const { node, edge } = item;
+          const children = this.activeSnapshot.snapshot
+            .getNodeChildren(node.id)
+            .filter((v) => this.filterItem(v));
+          return {
+            ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
+            rowKey: `${edge.name_or_index}_${edge.to_node}`,
+            hasChildren: !!children.length,
+          };
+        });
     },
     loadParents(tree, treeNode, resolve) {
-      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
         resolve([]);
         return;
       }
       const result = this.getNodeParents(tree.id);
       resolve(result);
     },
-    getNodeParents(nodeId){
-      if(!this.activeSnapshot || !this.activeSnapshot.snapshot){
+    getNodeParents(nodeId) {
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
         return [];
       }
-      return this.activeSnapshot.snapshot.getNodeParents(nodeId).filter(item => this.filterItem(item)).map((item) => {
-        const {node, edge} = item;
-        const parents = this.activeSnapshot.snapshot.getNodeParents(node.id).filter(v => this.filterItem(v));
-        return {
-          ...getNodeShowInfo({node, edge, totalSize: this.totalSize}),
-          rowKey: `${edge.name_or_index}_${edge.from_node}`,
-          hasParents: !!(parents.length)
-        }
-      });
+      return this.activeSnapshot.snapshot
+        .getNodeParents(nodeId)
+        .filter((item) => this.filterItem(item))
+        .map((item) => {
+          const { node, edge } = item;
+          const parents = this.activeSnapshot.snapshot
+            .getNodeParents(node.id)
+            .filter((v) => this.filterItem(v));
+          return {
+            ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
+            rowKey: `${edge.name_or_index}_${edge.from_node}`,
+            hasParents: !!(parents.length),
+          };
+        });
     },
-    handleCurrentChange(currentRow){
+    handleCurrentChange(currentRow) {
       this.currentNode = currentRow;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped lang="scss">

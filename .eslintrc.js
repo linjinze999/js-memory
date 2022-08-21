@@ -4,6 +4,7 @@ module.exports = {
     browser: true,
     es2021: true,
   },
+  parser: 'vue-eslint-parser',
   extends: [
     'plugin:vue/essential',
     'airbnb-base',
@@ -13,7 +14,8 @@ module.exports = {
     ecmaVersion: 'latest',
     parser: '@typescript-eslint/parser',
     sourceType: 'module',
-    project: "tsconfig.eslint.json"
+    project: "tsconfig.eslint.json",
+    extraFileExtensions: ['.vue']
   },
   plugins: [
     'vue',
@@ -39,6 +41,7 @@ module.exports = {
     ],
     'no-plusplus': 'off',
     'no-bitwise': 'off',
-    'no-nested-ternary': 'off'
+    'no-nested-ternary': 'off',
+    'import/no-extraneous-dependencies': 'off'
   },
 };

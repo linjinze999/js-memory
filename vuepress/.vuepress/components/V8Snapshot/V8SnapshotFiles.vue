@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div style="font-weight: bold; border-bottom: 1px solid #dcdfe6;padding-bottom: 10px;margin: 10px;">
+    <div class="snapshot-header">
       当前快照：
     </div>
     <div class="snapshot-list">
@@ -25,6 +25,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex';
 import { readFiles } from '../../utils/files';
+
 const { mapState, mapGetters, mapActions } = createNamespacedHelpers('V8Snapshot');
 
 export default {
@@ -33,44 +34,50 @@ export default {
     return {
       dialogImageUrl: '',
       dialogVisible: false,
-      disabled: false
+      disabled: false,
     };
   },
   computed: {
     ...mapState({
-      snapshotList: state => state.snapshotList,
+      snapshotList: (state) => state.snapshotList,
     }),
-    ...mapGetters(["activeSnapshot"])
+    ...mapGetters(['activeSnapshot']),
   },
   methods: {
-    showInput(){
+    showInput() {
       this.$refs.input.dispatchEvent(new MouseEvent('click'));
     },
-    onInput(){
-      readFiles(this.$refs.input.files).then(fileList => {
+    onInput() {
+      readFiles(this.$refs.input.files).then((fileList) => {
         this.addSnapshot(fileList);
       }).catch(() => {
         this.$message.error('读取文件出错');
-      })
+      });
     },
     onRemove(snapshot) {
       this.$confirm(`是否删除《${snapshot.name}》`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       }).then(() => {
-        this.removeSnapshot({snapshotList: [snapshot]});
+        this.removeSnapshot({ snapshotList: [snapshot] });
       }).catch(() => {});
     },
-    updateActive(snapshot){
+    updateActive(snapshot) {
       this.updateActiveSnapshot(snapshot);
     },
-    ...mapActions(["addSnapshot", "updateActiveSnapshot", "removeSnapshot"])
-  }
+    ...mapActions(['addSnapshot', 'updateActiveSnapshot', 'removeSnapshot']),
+  },
 };
 </script>
 
 <style scoped lang="scss">
+.snapshot-header{
+  font-weight: bold;
+  border-bottom: 1px solid #dcdfe6;
+  padding-bottom: 10px;
+  margin: 10px;
+}
 .snapshot-list{
   display: flex;
   flex-direction: row;

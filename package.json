@@ -17,11 +17,13 @@
   },
   "lint-staged": {
     "src/**/*": [
+      "echo 'node_modules/.bin/eslint --fix --ext .ts src'",
       "node_modules/.bin/eslint --fix --ext .ts src",
       "git add"
     ],
     "vuepress/**/*": [
-      "node_modules/.bin/eslint --fix --ext .ts vuepress/.vuepress",
+      "echo 'node_modules/.bin/eslint --fix --ext=js,ts,vue vuepress/.vuepress'",
+      "node_modules/.bin/eslint --fix --ext=js,ts,vue vuepress/.vuepress",
       "git add"
     ]
   },
