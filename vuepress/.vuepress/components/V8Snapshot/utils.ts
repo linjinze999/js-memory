@@ -117,7 +117,7 @@ export const nodeFilterOptions = [
 
 // 过滤出用户的节点
 export function filterUserObject(item: { node: V8SnapshotInfoNode, edge: V8SnapshotInfoEdge }) {
-  const { node } = item;
+  const { node, edge } = item;
   if (node.distance >= V8SnapshotInfo.BASE_SYSTEM_DISTANCE) {
     return false;
   }
@@ -133,23 +133,158 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge: V8Snaps
   ].includes(node.type)) {
     return false;
   }
-  // if([
-  //   V8SnapshotEdgeTypes.internal,
-  //   V8SnapshotEdgeTypes.hidden,
-  //   V8SnapshotEdgeTypes.weak,
-  //   V8SnapshotEdgeTypes.context
-  // ].indexOf(edge.type)){
-  //   return false;
-  // }
-  //
-  // if(edge.type === V8SnapshotEdgeTypes.property && [
-  //   'isNaN',
-  //   'BigInt64Array',
-  //   'Array',
-  //   'setTimeout',
-  //   'Boolean'
-  // ].includes(node.name)){
-  //   return false;
-  // }
+  if ([
+    V8SnapshotEdgeTypes.internal,
+    V8SnapshotEdgeTypes.hidden,
+    V8SnapshotEdgeTypes.weak,
+    V8SnapshotEdgeTypes.context,
+  ].includes(edge.type)) {
+    return false;
+  }
+
+  if ([
+    '__proto__',
+  ].includes(edge.name_or_index as string)) {
+    return false;
+  }
+
+  if (edge.type === V8SnapshotEdgeTypes.property && [
+    'BigInt64Array',
+    'Int8Array',
+    'Int16Array',
+    'Int32Array',
+    'Uint8Array',
+    'Uint16Array',
+    'Uint32Array',
+    'BigUint64Array',
+    'Float32Array',
+    'Float64Array',
+    'Uint8ClampedArray',
+    'Boolean',
+    'Map',
+    'Symbol',
+    'WeakMap',
+    'Math',
+    'Date',
+    'Array',
+    'ArrayBuffer',
+    'String',
+    'RegExp',
+    'Set',
+    'WeakSet',
+    'Object',
+    'Number',
+    'JSON',
+    'Function',
+    'BigInt',
+    'Promise',
+    'Proxy',
+    'WebAssembly',
+    'FinalizationRegistry',
+    'WeakRef',
+    'Error',
+    'RangeError',
+    'URIError',
+    'SyntaxError',
+    'EvalError',
+    'TypeError',
+    'ReferenceError',
+    'AggregateError',
+    'XMLHttpRequest',
+    'DataView',
+    'isNaN',
+    'isFinite',
+    'Reflect',
+    'Intl',
+    'Atomics',
+    'setTimeout',
+    'setInterval',
+    'clearTimeout',
+    'clearInterval',
+    'encodeURI',
+    'decodeURI',
+    'encodeURIComponent',
+    'decodeURIComponent',
+    'eval',
+    'parseInt',
+    'parseFloat',
+    'console',
+    'escape',
+    'unescape',
+    'global',
+    'structuredClone',
+    'resizeBy',
+    'requestIdleCallback',
+    'webkitRequestAnimationFrame',
+    'requestAnimationFrame',
+    'cancelIdleCallback',
+    'cancelAnimationFrame',
+    'webkitCancelAnimationFrame',
+    'webkitResolveLocalFileSystemURL',
+    'fetch',
+    'alert',
+    'confirm',
+    'prompt',
+    'document',
+    'print',
+    'open',
+    'close',
+    'scroll',
+    'scrollTo',
+    'scrollBy',
+    'moveTo',
+    'focus',
+    'blur',
+    'resizeTo',
+    'moveBy',
+    'find',
+    'stop',
+    'releaseEvents',
+    'postMessage',
+    'createImageBitmap',
+    'webkitRequestFileSystem',
+    'JSCompiler_renameProperty',
+    'ShadyCSS',
+    'atob',
+    'btoa',
+    'caches',
+    'localStorage',
+    'captureEvents',
+    'MutationObserver',
+    'showOpenFilePicker',
+    'showSaveFilePicker',
+    'showDirectoryPicker',
+    'queueMicrotask',
+    'queryLocalFonts',
+    'getScreenDetails',
+    'getComputedStyle',
+    'openDatabase',
+    'get launchQueue',
+    'get onbeforematch',
+    'set onbeforematch',
+    'get ondevicemotion',
+    'set ondevicemotion',
+    'get ondeviceorientation',
+    'set ondeviceorientation',
+    'get crossOriginIsolated',
+    'set crossOriginIsolated',
+    'get originAgentCluster',
+    'get ondeviceorientationabsolute',
+    'set ondeviceorientationabsolute',
+    'get onpointerrawupdate',
+    'set onpointerrawupdate',
+    'get trustedTypes',
+    'get caches',
+    'get speechSynthesis',
+    'get navigation',
+    'set navigation',
+    'get scheduler',
+    'set scheduler',
+    'getSelection',
+    'get cookieStore',
+    '__proto__',
+  ].includes(node.name)) {
+    return false;
+  }
   return true;
 }
