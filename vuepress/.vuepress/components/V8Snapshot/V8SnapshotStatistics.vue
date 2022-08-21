@@ -29,8 +29,8 @@ export default {
   computed: {
     activeSnapshotStatistics() {
       return this.activeSnapshot && this.activeSnapshot.snapshot
-          ? this.activeSnapshot.snapshot.calculateStatistics()
-          : null;
+        ? this.activeSnapshot.snapshot.calculateStatistics()
+        : null;
       // {
       //   total: 0, // 总计
       //   native: 0, // 类型化数组

@@ -3,7 +3,6 @@
   "include": [
     "src",
     "./vuepress/.vuepress/**/*.ts",
-    "./vuepress/.vuepress/**/*.js",
     "./vuepress/.vuepress/**/*.vue"
   ]
 }

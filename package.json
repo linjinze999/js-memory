@@ -22,8 +22,8 @@
       "git add"
     ],
     "vuepress/**/*": [
-      "echo 'node_modules/.bin/eslint --fix --ext=js,ts,vue vuepress/.vuepress'",
-      "node_modules/.bin/eslint --fix --ext=js,ts,vue vuepress/.vuepress",
+      "echo 'node_modules/.bin/eslint --fix --ext=ts,vue vuepress/.vuepress'",
+      "node_modules/.bin/eslint --fix --ext=ts,vue vuepress/.vuepress",
       "git add"
     ]
   },
