@@ -1,6 +1,6 @@
 import {
   V8SnapshotEdgeTypes,
-  V8SnapshotInfo,
+  V8SnapshotInfo, V8SnapshotInfoAggregatedInfo,
   V8SnapshotInfoEdge,
   V8SnapshotInfoNode,
   V8SnapshotNodeTypes,
@@ -10,7 +10,7 @@ export { V8SnapshotInfo, V8SnapshotEdgeTypes, V8SnapshotNodeTypes } from '../../
 
 // 获取表格展示信息
 interface GetNodeShowInfoParams {
-  edge: V8SnapshotInfoEdge,
+  edge?: V8SnapshotInfoEdge,
   node: V8SnapshotInfoNode,
   totalSize: number
 }
@@ -47,17 +47,17 @@ export function getNodeShowInfo(params: GetNodeShowInfoParams) {
                 : undefined,
       fontStyle: node.type === V8SnapshotNodeTypes.closure ? 'italic' : undefined,
     },
-    nameShowPrefix: edge.type === V8SnapshotEdgeTypes.element
+    nameShowPrefix: edge?.type === V8SnapshotEdgeTypes.element
       ? `[${edge.name_or_index}]`
-      : edge.name_or_index,
+      : (edge?.name_or_index || ""),
     nameShowPrefixStyle: {
       color: [
         V8SnapshotEdgeTypes.internal,
         V8SnapshotEdgeTypes.hidden,
         V8SnapshotEdgeTypes.weak,
-      ].indexOf(edge.type) > -1
+      ].indexOf(edge?.type) > -1
         ? '#909399'
-        : edge.type === V8SnapshotEdgeTypes.context
+        : edge?.type === V8SnapshotEdgeTypes.context
           ? 'rgb(26,26,166)'
           : 'rgb(136,18,128)',
     },
@@ -67,6 +67,29 @@ export function getNodeShowInfo(params: GetNodeShowInfoParams) {
     detachedDOMTreeNode: Boolean(node.flag & V8SnapshotInfo.NODE_FLAGS.detachedDOMTreeNode),
     selfSizePercent: Math.round((node.self_size * 100) / totalSize),
     retainedSizePercent: Math.round((node.retained_size * 100) / totalSize),
+  };
+}
+interface GetNodeShowInfoByClassParams {
+  _class: V8SnapshotInfoAggregatedInfo,
+  totalSize: number
+}
+export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams){
+  const { _class, totalSize } = params;
+  return {
+    ..._class,
+    // nodeType: node.type,
+    distanceShow: _class.distance,
+    nameShow: _class.name,
+    nameShowStyle: {},
+    nameShowPrefix: "",
+    nameShowPrefixStyle: {},
+    reachableFromWindow: false,
+    detachedDOMTreeNode: false,
+    self_size: _class.self,
+    selfSizePercent: Math.round((_class.self * 100) / totalSize),
+    retained_size: _class.maxRet,
+    retainedSizePercent: Math.round((_class.maxRet * 100) / totalSize),
+    hasChildren: !!_class.idxs.length,
   };
 }
 
@@ -116,7 +139,7 @@ export const nodeFilterOptions = [
 // ];
 
 // 过滤出用户的节点
-export function filterUserObject(item: { node: V8SnapshotInfoNode, edge: V8SnapshotInfoEdge }) {
+export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8SnapshotInfoEdge }) {
   const { node, edge } = item;
   if (node.distance >= V8SnapshotInfo.BASE_SYSTEM_DISTANCE) {
     return false;
@@ -138,17 +161,17 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge: V8Snaps
     V8SnapshotEdgeTypes.hidden,
     V8SnapshotEdgeTypes.weak,
     V8SnapshotEdgeTypes.context,
-  ].includes(edge.type)) {
+  ].includes(edge?.type)) {
     return false;
   }
 
   if ([
     '__proto__',
-  ].includes(edge.name_or_index as string)) {
+  ].includes(edge?.name_or_index as string)) {
     return false;
   }
 
-  if (edge.type === V8SnapshotEdgeTypes.property && [
+  if (edge?.type === V8SnapshotEdgeTypes.property && [
     'BigInt64Array',
     'Int8Array',
     'Int16Array',

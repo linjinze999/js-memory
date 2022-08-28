@@ -1,5 +1,5 @@
 import {
-  V8SnapshotInfo, V8SnapshotInfoEdge,
+  V8SnapshotInfo, V8SnapshotInfoAggregatedInfo, V8SnapshotInfoEdge,
   V8SnapshotInfoNode,
   V8SnapshotProgressParams,
 } from './V8SnapshotInfo';
@@ -9,6 +9,7 @@ export interface SnapshotOptions {
   text: string;
   progressCallback?: (params: V8SnapshotProgressParams) => void;
 }
+
 interface V8SnapshotCalculateSize {
   total: number, // 总计
   native: number, // 类型化数组
@@ -21,7 +22,7 @@ interface V8SnapshotCalculateSize {
 
 interface NodeEdge {
   node: V8SnapshotInfoNode,
-  edge: V8SnapshotInfoEdge,
+  edge?: V8SnapshotInfoEdge,
 }
 
 export class V8Snapshot {
@@ -113,6 +114,14 @@ export class V8Snapshot {
       edge,
       node: this.snapshot_info.nodes[edge.from_node],
     })) || [];
+
+  // 获取类列表
+  public getClassList = (): V8SnapshotInfoAggregatedInfo[] => {
+    return Object.keys(this.snapshot_info.aggregatesByClassIndex)
+      .map((classIndex) => {
+        return this.snapshot_info.aggregatesByClassIndex[classIndex as any];
+      });
+  };
 }
 
 export default V8Snapshot;

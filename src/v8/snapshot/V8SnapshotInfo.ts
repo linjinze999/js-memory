@@ -49,7 +49,7 @@ V8SnapshotEdgeFields | V8SnapshotInfoEdgeFields, number | string
   [V8SnapshotInfoEdgeFields.from_node]: number
 };
 
-interface V8SnapshotInfoAggregatedInfo {
+export interface V8SnapshotInfoAggregatedInfo {
   count: number,
   distance: number,
   self: number,
@@ -731,7 +731,7 @@ export class V8SnapshotInfo {
 
   // 统计类数量
   private buildAggregates = (filter?: (node: V8SnapshotInfoNode) => (boolean)) => {
-    const classIndexes = [];
+    const classIndexes: number[] = [];
 
     this.node_list.forEach((node, index) => {
       if (filter && !filter(node)) {
@@ -768,6 +768,15 @@ export class V8SnapshotInfo {
         clss.idxs.push(index);
       }
     });
+
+    // Shave off provisionally allocated space.
+    for (let i = 0, l = classIndexes.length; i < l; ++i) {
+      const classIndex = classIndexes[i];
+      const classIndexValues = this.aggregatesByClassIndex[classIndex];
+      if (classIndexValues) {
+        classIndexValues.idxs = classIndexValues.idxs.slice();
+      }
+    }
   };
 
   private calculateClassesRetainedSize = (filter?: ((node: V8SnapshotInfoNode) => boolean)) => {

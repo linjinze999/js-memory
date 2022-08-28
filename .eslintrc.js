@@ -43,6 +43,7 @@ module.exports = {
     'no-plusplus': 'off',
     'no-bitwise': 'off',
     'no-nested-ternary': 'off',
-    'import/no-extraneous-dependencies': 'off'
+    'import/no-extraneous-dependencies': 'off',
+    'no-continue': 'off'
   },
 };

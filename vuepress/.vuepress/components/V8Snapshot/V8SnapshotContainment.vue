@@ -5,6 +5,7 @@
       <V8Snapshot-V8SnapshotFiles/>
     </el-card>
     <br/>
+    <!-- 2. 选择条件 -->
     <el-card>
       <div slot="header">
         <div>节点过滤</div>
@@ -109,15 +110,15 @@
       </el-form>
     </el-card>
     <br/>
-    <!-- 2. 控制/包含 视图 -->
+    <!-- 3. 控制/包含 视图 -->
     <el-card>
-      <!-- 2.1 标题 -->
+      <!-- 3.1 标题 -->
       <div slot="header">
         <div v-if="activeSnapshot">{{activeSnapshot.name}}</div>
         <div v-else>未选择</div>
       </div>
       <div>
-        <!-- 2.2 表格树 -->
+        <!-- 3.2 表格树 -->
         <div v-if="!activeSnapshot">未选择</div>
         <div v-else-if="!activeSnapshot.snapshot" v-loading="true">解析中...</div>
         <el-table
@@ -192,7 +193,7 @@
         </el-table>
         <br/>
         <el-tabs type="border-card">
-          <!-- 2.3 保留器 -->
+          <!-- 3.3 保留器 -->
           <el-tab-pane label="父节点">
             <el-table
                 v-if="currentNode"
@@ -286,7 +287,7 @@ export default {
   name: 'V8SnapshotContainment',
   data() {
     return {
-      nodeFilterSelect: nodeFilterType.userObject,
+      nodeFilterSelect: nodeFilterType.all,
       // nodeFilterTypesSelect: [],
       nodeFilterName: '',
       nodeFilterDistanceMin: null,
@@ -296,7 +297,7 @@ export default {
       nodeFilterRetainedSizeMin: null,
       nodeFilterRetainedSizeMax: null,
       nodeFilterForm: {
-        nodeFilterSelect: nodeFilterType.userObject,
+        nodeFilterSelect: nodeFilterType.all,
         // nodeFilterTypesSelect: [],
         nodeFilterName: '',
         nodeFilterDistanceMin: null,
@@ -413,7 +414,7 @@ export default {
             .filter((v) => this.filterItem(v));
           return {
             ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
-            rowKey: `${edge.name_or_index}_${edge.to_node}`,
+            rowKey: `${edge ? edge.name_or_index : ""}_${edge ? edge.to_node : node.id}`,
             hasChildren: !!children.length,
           };
         });
@@ -440,7 +441,7 @@ export default {
             .filter((v) => this.filterItem(v));
           return {
             ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
-            rowKey: `${edge.name_or_index}_${edge.from_node}`,
+            rowKey: `${edge? edge.name_or_index : ""}_${edge? edge.from_node : node.id}`,
             hasParents: !!(parents.length),
           };
         });
