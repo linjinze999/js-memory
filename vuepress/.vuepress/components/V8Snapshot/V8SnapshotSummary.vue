@@ -137,10 +137,10 @@
         >
           <el-table-column prop="name" sortable label="对象">
             <template slot-scope="scope">
-              <span :style="scope.row.nameShowPrefixStyle">
+              <span v-if="scope.row.nameShowPrefix" :style="scope.row.nameShowPrefixStyle">
                 {{ scope.row.nameShowPrefix }}
               </span>
-              <span>&nbsp;::&nbsp;</span>
+              <span v-if="scope.row.nameShowPrefix">&nbsp;::&nbsp;</span>
               <span :style="scope.row.nameShowStyle">
                 {{ scope.row.nameShow }}
               </span>

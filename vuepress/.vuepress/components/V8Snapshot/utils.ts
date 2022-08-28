@@ -90,6 +90,7 @@ export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams){
     retained_size: _class.maxRet,
     retainedSizePercent: Math.round((_class.maxRet * 100) / totalSize),
     hasChildren: !!_class.idxs.length,
+    rowKey: _class.name,
   };
 }
 
