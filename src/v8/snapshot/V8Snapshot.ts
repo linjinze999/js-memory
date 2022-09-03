@@ -152,7 +152,7 @@ export class V8Snapshot {
     const diffSnapshotNodes = diffSnapshot.snapshot_info.nodes;
     const result: Record<string, V8SnapshotDiff> = {};
     Object.keys(baseSnapshotClass).forEach((className) => {
-      const diff = this.calculateDiffForClass({
+      const diff = V8Snapshot.calculateDiffForClass({
         baseSnapshotNodes,
         diffSnapshotNodes,
         baseSnapshotIds: baseSnapshotClass[className].ids,
