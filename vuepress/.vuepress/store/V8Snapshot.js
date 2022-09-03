@@ -1,4 +1,5 @@
-import V8SnapshotExample from "../example/kg_qq_com.js"
+import Demo1 from "../example/demo1.js"
+import Demo2 from "../example/demo2.js"
 import { V8Snapshot } from "../../../src/index"
 import { Message } from 'element-ui';
 
@@ -11,8 +12,15 @@ export default {
       snapshotList: [
         {
           id: idIndex,
-          name: "示例.heapsnapshot",
-          snapshot: new V8Snapshot({text: JSON.stringify(V8SnapshotExample)}),
+          name: "示例1.heapsnapshot",
+          snapshot: new V8Snapshot({text: Demo1}),
+          progress: 1,
+          progressText: "初始化完成"
+        },
+        {
+          id: ++idIndex,
+          name: "示例2.heapsnapshot",
+          snapshot: new V8Snapshot({text: Demo2}),
           progress: 1,
           progressText: "初始化完成"
         }

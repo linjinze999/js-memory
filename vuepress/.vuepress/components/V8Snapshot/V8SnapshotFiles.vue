@@ -16,7 +16,11 @@
           :title="item.name"
       >
         <span class="text">{{item.name}}</span>
-        <i v-if="item.id !== 1" class="el-icon-delete delete" @click="onRemove(item)"></i>
+        <i
+            v-if="item.id !== 1 && item.id !== 2"
+            class="el-icon-delete delete"
+            @click="onRemove(item)"
+        ></i>
       </div>
       <i class="el-icon-plus item add" @click="showInput"></i>
     </div>

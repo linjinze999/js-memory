@@ -3,10 +3,10 @@ import {
   V8SnapshotInfoNode,
   V8SnapshotProgressParams,
 } from './V8SnapshotInfo';
-import { V8SnapshotEdgeTypes, V8SnapshotNodeTypes } from './V8SnapshotTypes';
+import { V8SnapshotEdgeTypes, V8SnapshotJson, V8SnapshotNodeTypes } from './V8SnapshotTypes';
 
 export interface SnapshotOptions {
-  text: string;
+  text: string | V8SnapshotJson;
   progressCallback?: (params: V8SnapshotProgressParams) => void;
 }
 

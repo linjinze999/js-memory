@@ -7,7 +7,7 @@ import {
 } from './V8SnapshotTypes';
 
 export interface V8SnapshotInfoOptions {
-  text: string;
+  text: string | V8SnapshotJson;
   progressCallback?: (params: V8SnapshotProgressParams) => void;
 }
 
@@ -127,9 +127,9 @@ export class V8SnapshotInfo {
   private options: V8SnapshotInfoOptions;
 
   // 初始化：分析V8Snapshot
-  private init = (text: string) => {
+  private init = (text: string | V8SnapshotJson) => {
     try {
-      this.snapshot = JSON.parse(text);
+      this.snapshot = typeof text === 'string' ? JSON.parse(text) : text;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('[V8SnapshotInfo] format snapshot error: ', e);

@@ -17,7 +17,13 @@ module.exports = {
     project: "tsconfig.eslint.json",
     extraFileExtensions: ['.vue', '.md']
   },
-  ignorePatterns: ['dist', 'docs', '!vuepress/.vuepress', 'vuepress/**/*.md'],
+  ignorePatterns: [
+    'dist',
+    'docs',
+    '!vuepress/.vuepress',
+    'vuepress/**/*.md',
+    'vuepress/.vuepress/example'
+  ],
   plugins: [
     'vue',
     '@typescript-eslint',
@@ -39,6 +45,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'no-continue': 'off',
     'no-mixed-operators': 'off',
-    '@typescript-eslint/naming-convention': 'off'
+    '@typescript-eslint/naming-convention': 'off',
+    'no-console': 'off',
   },
 };
