@@ -277,7 +277,7 @@ import {
   getNodeShowInfo, getNodeShowInfoByClass,
   nodeFilterOptions,
   nodeFilterType,
-  V8SnapshotInfo
+  V8SnapshotInfo,
 } from './utils';
 
 const { mapGetters } = createNamespacedHelpers('V8Snapshot');
@@ -315,14 +315,13 @@ export default {
   },
   computed: {
     rootList() {
-      return (this.activeSnapshot
-          && this.activeSnapshot.snapshot
-          && this.activeSnapshot.snapshot.getClassList() || []).map(_class => {
-        return getNodeShowInfoByClass({
-          _class,
-          totalSize: this.totalSize
-        });
-      });
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
+        return [];
+      }
+      return (this.activeSnapshot.snapshot.getClassList()).map((_class) => getNodeShowInfoByClass({
+        _class,
+        totalSize: this.totalSize,
+      }));
     },
     totalSize() {
       return (this.activeSnapshot
@@ -343,33 +342,32 @@ export default {
       }
       if (tree.idxs) {
         const result = tree.idxs
-            .map(idx => {
-              return {
-                className: tree.name,
-                node: this.activeSnapshot.snapshot.snapshot_info.nodes[idx]
-              };
-            })
-            .filter((item) => this.filterItem(item))
-            .map((item, index) => {
-              const {
+          .map((idx) => ({
+            classIdx: tree.idx,
+            node: this.activeSnapshot.snapshot.snapshot_info.nodes[idx],
+          }))
+          .filter((item) => this.filterItem(item))
+          .map((item, index) => {
+            const {
+              node,
+              classIdx,
+            } = item;
+            const children = this.activeSnapshot.snapshot
+              .getNodeChildren(node.id)
+              .filter((v) => this.filterItem(v));
+            return {
+              ...getNodeShowInfo({
                 node,
-                className
-              } = item;
-              const children = this.activeSnapshot.snapshot
-                  .getNodeChildren(node.id)
-                  .filter((v) => this.filterItem(v));
-              return {
-                ...getNodeShowInfo({
-                  node,
-                  totalSize: this.totalSize
-                }),
-                rowKey: `${className}_${index}_${node.id}`,
-                hasChildren: !!children.length,
-              };
-            });
+                totalSize: this.totalSize,
+              }),
+              level: 1,
+              rowKey: `${classIdx}_${index}_${node.id}`,
+              hasChildren: !!children.length,
+            };
+          });
         resolve(result);
       } else {
-        const result = this.getNodeChildren(tree.id);
+        const result = this.getNodeChildren(tree.id, (tree.level || 1) + 1);
         resolve(result);
       }
     },
@@ -435,31 +433,33 @@ export default {
       }
       return true;
     },
-    getNodeChildren(nodeId) {
+    getNodeChildren(nodeId, level) {
       if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
         return [];
       }
       return this.activeSnapshot.snapshot
-          .getNodeChildren(nodeId)
-          .filter((item) => this.filterItem(item))
-          .map((item) => {
-            const {
+        .getNodeChildren(nodeId)
+        .filter((item) => this.filterItem(item))
+        .map((item) => {
+          const {
+            node,
+            edge,
+            classIdx,
+          } = item;
+          const children = this.activeSnapshot.snapshot
+            .getNodeChildren(node.id)
+            .filter((v) => this.filterItem(v));
+          return {
+            ...getNodeShowInfo({
               node,
-              edge
-            } = item;
-            const children = this.activeSnapshot.snapshot
-                .getNodeChildren(node.id)
-                .filter((v) => this.filterItem(v));
-            return {
-              ...getNodeShowInfo({
-                node,
-                edge,
-                totalSize: this.totalSize
-              }),
-              rowKey: `${edge ? edge.name_or_index : ''}_${edge ? edge.to_node : node.id}`,
-              hasChildren: !!children.length,
-            };
-          });
+              edge,
+              totalSize: this.totalSize,
+            }),
+            level,
+            rowKey: `${level}_${classIdx || ''}_${(edge ? edge.idx : '')}_${node.id}`,
+            hasChildren: !!children.length,
+          };
+        });
     },
     loadParents(tree, treeNode, resolve) {
       if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
@@ -474,26 +474,26 @@ export default {
         return [];
       }
       return this.activeSnapshot.snapshot
-          .getNodeParents(nodeId)
-          .filter((item) => this.filterItem(item))
-          .map((item) => {
-            const {
+        .getNodeParents(nodeId)
+        .filter((item) => this.filterItem(item))
+        .map((item) => {
+          const {
+            node,
+            edge,
+          } = item;
+          const parents = this.activeSnapshot.snapshot
+            .getNodeParents(node.id);
+          // .filter((v) => this.filterItem(v));
+          return {
+            ...getNodeShowInfo({
               node,
-              edge
-            } = item;
-            const parents = this.activeSnapshot.snapshot
-                .getNodeParents(node.id)
-                .filter((v) => this.filterItem(v));
-            return {
-              ...getNodeShowInfo({
-                node,
-                edge,
-                totalSize: this.totalSize
-              }),
-              rowKey: `${edge ? edge.name_or_index : ''}_${edge ? edge.from_node : node.id}`,
-              hasParents: !!(parents.length),
-            };
-          });
+              edge,
+              totalSize: this.totalSize,
+            }),
+            rowKey: `${edge ? edge.idx : ''}_${edge ? edge.from_node : node.id}`,
+            hasParents: !!(parents.length),
+          };
+        });
     },
     handleCurrentChange(currentRow) {
       if (!currentRow.id) {

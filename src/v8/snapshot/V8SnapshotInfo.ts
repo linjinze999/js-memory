@@ -1,7 +1,7 @@
 import {
-  V8SnapshotJson,
   V8SnapshotEdgeFields,
   V8SnapshotEdgeTypes,
+  V8SnapshotJson,
   V8SnapshotNodeFields,
   V8SnapshotNodeTypes,
 } from './V8SnapshotTypes';
@@ -25,6 +25,7 @@ export enum V8SnapshotInfoNodeFields {
 export enum V8SnapshotInfoEdgeFields {
   // eslint-disable-next-line no-unused-vars
   from_node = 'from_node',
+  idx = 'idx',
 }
 
 export type V8SnapshotInfoNode = Record<
@@ -46,10 +47,12 @@ V8SnapshotEdgeFields | V8SnapshotInfoEdgeFields, number | string
   [V8SnapshotEdgeFields.type]: V8SnapshotEdgeTypes,
   [V8SnapshotEdgeFields.name_or_index]: string | number,
   [V8SnapshotEdgeFields.to_node]: number,
-  [V8SnapshotInfoEdgeFields.from_node]: number
+  [V8SnapshotInfoEdgeFields.from_node]: number,
+  [V8SnapshotInfoEdgeFields.idx]: number,
 };
 
 export interface V8SnapshotInfoAggregatedInfo {
+  idx: number,
   count: number,
   distance: number,
   self: number,
@@ -264,13 +267,13 @@ export class V8SnapshotInfo {
 
   // 初始化：edges信息
   private initEdges = () => {
-    let edge_start = 0;
+    let edge_idx = 0;
     let edge: V8SnapshotInfoEdge;
     let from_node_id: number;
     this.node_list.forEach((node) => {
       from_node_id = node.id;
       for (let j = 0; j < node.edge_count; ++j) {
-        edge = this.getEdge(edge_start, from_node_id);
+        edge = this.getEdge(edge_idx, from_node_id);
         // edge list
         this.edge_list.push(edge);
         // edge from map
@@ -279,16 +282,18 @@ export class V8SnapshotInfo {
         // edge to map
         this.edges_to[edge.to_node] = this.edges_to[edge.to_node] || [];
         this.edges_to[edge.to_node]!.push(edge);
-        edge_start += this.edge_fields_count;
+        edge_idx += 1;
       }
     });
   };
 
   // 获取edge
-  private getEdge = (edge_start: number, from_node: number): V8SnapshotInfoEdge => {
+  private getEdge = (edge_idx: number, from_node: number): V8SnapshotInfoEdge => {
     const edge_field = this.snapshot.snapshot.meta.edge_fields;
+    const edge_start = edge_idx * this.edge_fields_count;
     const edge: Partial<V8SnapshotInfoEdge> = {
       from_node,
+      idx: edge_idx,
     };
     for (let i = 0; i < this.edge_fields_count; ++i) {
       (edge[edge_field[i]] as string | number) = this.getEdgeField(edge_start, i, edge.type);
@@ -744,13 +749,18 @@ export class V8SnapshotInfo {
       if (!(classIndex in this.aggregatesByClassIndex)) {
         // 新增
         const value: V8SnapshotInfoAggregatedInfo = {
+          idx: classIndex,
           count: 1,
           distance: node[V8SnapshotInfoNodeFields.distance],
           self: node[V8SnapshotNodeFields.self_size],
           maxRet: 0,
           type: node.type,
-          name: node.type === V8SnapshotNodeTypes.object
-          || node.type === V8SnapshotNodeTypes.native ? node.name : null,
+          name: node.type === V8SnapshotNodeTypes.hidden
+            ? '(system)'
+            : node.type === V8SnapshotNodeTypes.code
+              ? '(compiled code)'
+              : (node.type === V8SnapshotNodeTypes.object
+          || node.type === V8SnapshotNodeTypes.native) ? node.name : `(${node.type})`,
           idxs: [index],
         };
         this.aggregatesByClassIndex[classIndex] = value;

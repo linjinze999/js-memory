@@ -49,7 +49,7 @@ export function getNodeShowInfo(params: GetNodeShowInfoParams) {
     },
     nameShowPrefix: edge?.type === V8SnapshotEdgeTypes.element
       ? `[${edge.name_or_index}]`
-      : (edge?.name_or_index || ""),
+      : (edge?.name_or_index || ''),
     nameShowPrefixStyle: {
       color: [
         V8SnapshotEdgeTypes.internal,
@@ -73,7 +73,7 @@ interface GetNodeShowInfoByClassParams {
   _class: V8SnapshotInfoAggregatedInfo,
   totalSize: number
 }
-export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams){
+export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams) {
   const { _class, totalSize } = params;
   return {
     ..._class,
@@ -81,7 +81,7 @@ export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams){
     distanceShow: _class.distance,
     nameShow: _class.name,
     nameShowStyle: {},
-    nameShowPrefix: "",
+    nameShowPrefix: '',
     nameShowPrefixStyle: {},
     reachableFromWindow: false,
     detachedDOMTreeNode: false,
@@ -90,7 +90,7 @@ export function getNodeShowInfoByClass(params: GetNodeShowInfoByClassParams){
     retained_size: _class.maxRet,
     retainedSizePercent: Math.round((_class.maxRet * 100) / totalSize),
     hasChildren: !!_class.idxs.length,
-    rowKey: _class.name,
+    rowKey: _class.idx,
   };
 }
 

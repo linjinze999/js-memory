@@ -33,17 +33,12 @@ module.exports = {
         "ignoreStrings": true
       }
     ],
-    '@typescript-eslint/naming-convention': [
-      'error',
-      {
-        "selector": "variable",
-        format: ['camelCase', 'PascalCase', 'UPPER_CASE', 'snake_case']
-      }
-    ],
     'no-plusplus': 'off',
     'no-bitwise': 'off',
     'no-nested-ternary': 'off',
     'import/no-extraneous-dependencies': 'off',
-    'no-continue': 'off'
+    'no-continue': 'off',
+    'no-mixed-operators': 'off',
+    '@typescript-eslint/naming-convention': 'off'
   },
 };

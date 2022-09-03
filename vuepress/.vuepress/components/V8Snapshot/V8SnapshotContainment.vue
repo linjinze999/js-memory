@@ -414,7 +414,7 @@ export default {
             .filter((v) => this.filterItem(v));
           return {
             ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
-            rowKey: `${edge ? edge.name_or_index : ""}_${edge ? edge.to_node : node.id}`,
+            rowKey: `${edge ? edge.name_or_index : ''}_${edge ? edge.to_node : node.id}`,
             hasChildren: !!children.length,
           };
         });
@@ -441,7 +441,7 @@ export default {
             .filter((v) => this.filterItem(v));
           return {
             ...getNodeShowInfo({ node, edge, totalSize: this.totalSize }),
-            rowKey: `${edge? edge.name_or_index : ""}_${edge? edge.from_node : node.id}`,
+            rowKey: `${edge ? edge.idx : ''}_${edge ? edge.from_node : node.id}`,
             hasParents: !!(parents.length),
           };
         });

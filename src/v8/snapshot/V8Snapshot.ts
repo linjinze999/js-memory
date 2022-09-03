@@ -109,18 +109,19 @@ export class V8Snapshot {
   };
 
   // 获取父节点
-  public getNodeParents = (nodeId: number): NodeEdge[] => this.snapshot_info.edges_to[nodeId]
-    ?.map((edge) => ({
+  public getNodeParents = (nodeId: number): NodeEdge[] => {
+    const edges = this.snapshot_info.edges_to[nodeId];
+    return edges?.map((edge) => ({
       edge,
       node: this.snapshot_info.nodes[edge.from_node],
     })) || [];
+  };
 
   // 获取类列表
   public getClassList = (): V8SnapshotInfoAggregatedInfo[] => {
-    return Object.keys(this.snapshot_info.aggregatesByClassIndex)
-      .map((classIndex) => {
-        return this.snapshot_info.aggregatesByClassIndex[classIndex as any];
-      });
+    const classIndexList = Object.keys(this.snapshot_info.aggregatesByClassIndex);
+    return classIndexList
+      .map((classIndex) => this.snapshot_info.aggregatesByClassIndex[classIndex as any]);
   };
 }
 
