@@ -38,20 +38,20 @@ module.exports = {
               title: '堆快照',
               collapsable: false,
               children: [
-                'snapshot/statistics',
                 'snapshot/containment',
                 'snapshot/summary',
                 'snapshot/comparison',
+                'snapshot/statistics',
               ],
             },
             {
               title: '时间轴上的分配插桩',
               collapsable: false,
               children: [
-                'timeline/statistics',
                 'timeline/containment',
                 'timeline/summary',
                 'timeline/comparison',
+                'timeline/statistics',
               ],
             },
             {

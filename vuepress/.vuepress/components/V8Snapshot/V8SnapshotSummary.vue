@@ -135,7 +135,7 @@
             highlight-current-row
             @current-change="handleCurrentChange"
         >
-          <el-table-column prop="name" sortable label="对象">
+          <el-table-column prop="name" sortable label="构造函数">
             <template slot-scope="scope">
               <span v-if="scope.row.nameShowPrefix" :style="scope.row.nameShowPrefixStyle">
                 {{ scope.row.nameShowPrefix }}
@@ -344,7 +344,7 @@ export default {
         const result = tree.idxs
           .map((idx) => ({
             classIdx: tree.idx,
-            node: this.activeSnapshot.snapshot.snapshot_info.nodes[idx],
+            node: this.activeSnapshot.snapshot.snapshot_info.node_list[idx],
           }))
           .filter((item) => this.filterItem(item))
           .map((item, index) => {

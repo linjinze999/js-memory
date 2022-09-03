@@ -10,7 +10,7 @@ export interface SnapshotOptions {
   progressCallback?: (params: V8SnapshotProgressParams) => void;
 }
 
-interface V8SnapshotCalculateSize {
+export interface V8SnapshotCalculateSize {
   total: number, // 总计
   native: number, // 类型化数组
   code: number, // 代码
@@ -24,6 +24,20 @@ interface NodeEdge {
   node: V8SnapshotInfoNode,
   edge?: V8SnapshotInfoEdge,
 }
+
+export interface V8SnapshotDiff {
+  className: string,
+  addedIds: number[],
+  deletedIds: number[],
+  removedCount: number,
+  removedSize: number,
+  addedCount: number,
+  addedSize: number,
+  countDelta: number,
+  sizeDelta: number,
+}
+
+let snapshotId = 1;
 
 export class V8Snapshot {
   constructor(options: SnapshotOptions) {
@@ -41,6 +55,10 @@ export class V8Snapshot {
   public snapshot_info: V8SnapshotInfo;
 
   private calculateSize?: V8SnapshotCalculateSize;
+
+  private snapshotId = snapshotId++;
+
+  private diffSnapshot: Record<number, Record<string, V8SnapshotDiff>> = {};
 
   // 统计数据
   public calculateStatistics = (reset?: boolean): V8SnapshotCalculateSize => {
@@ -122,6 +140,104 @@ export class V8Snapshot {
     const classIndexList = Object.keys(this.snapshot_info.aggregatesByClassIndex);
     return classIndexList
       .map((classIndex) => this.snapshot_info.aggregatesByClassIndex[classIndex as any]);
+  };
+
+  public calculateSnapshotDiff = (diffSnapshot: V8Snapshot) => {
+    if (this.diffSnapshot[diffSnapshot.snapshotId]) {
+      return this.diffSnapshot[diffSnapshot.snapshotId];
+    }
+    const baseSnapshotClass = this.snapshot_info.aggregatesByClassName;
+    const diffSnapshotClass = diffSnapshot.snapshot_info.aggregatesByClassName;
+    const baseSnapshotNodes = this.snapshot_info.nodes;
+    const diffSnapshotNodes = diffSnapshot.snapshot_info.nodes;
+    const result: Record<string, V8SnapshotDiff> = {};
+    Object.keys(baseSnapshotClass).forEach((className) => {
+      const diff = this.calculateDiffForClass({
+        baseSnapshotNodes,
+        diffSnapshotNodes,
+        baseSnapshotIds: baseSnapshotClass[className].ids,
+        diffSnapshotIds: diffSnapshotClass[className]?.ids || [],
+        className,
+      });
+      if (diff.removedCount || diff.addedCount) {
+        result[className] = diff;
+      }
+    });
+    Object.keys(diffSnapshotClass).forEach((className) => {
+      if (baseSnapshotClass[className]) {
+        return;
+      }
+      const diff = V8Snapshot.calculateDiffForClass({
+        baseSnapshotNodes,
+        diffSnapshotNodes,
+        baseSnapshotIds: [],
+        diffSnapshotIds: diffSnapshotClass[className].ids || [],
+        className,
+      });
+      if (diff.removedCount || diff.addedCount) {
+        result[className] = diff;
+      }
+    });
+    this.diffSnapshot[diffSnapshot.snapshotId] = result;
+    return result;
+  };
+
+  static calculateDiffForClass = (params: {
+    baseSnapshotNodes: Record<number | string, V8SnapshotInfoNode>,
+    diffSnapshotNodes: Record<number | string, V8SnapshotInfoNode>,
+    baseSnapshotIds: number[],
+    diffSnapshotIds: number[],
+    className: string
+  }) => {
+    const {
+      baseSnapshotNodes, diffSnapshotNodes, baseSnapshotIds, diffSnapshotIds, className,
+    } = params;
+    const left = baseSnapshotIds;
+    const right = diffSnapshotIds;
+    let l = 0;
+    let r = 0;
+    const diff: V8SnapshotDiff = {
+      className,
+      addedIds: [],
+      deletedIds: [],
+      removedCount: 0,
+      removedSize: 0,
+      addedCount: 0,
+      addedSize: 0,
+      sizeDelta: 0,
+      countDelta: 0,
+    };
+    while (l < left.length && r < right.length) {
+      if (left[l] < right[r]) {
+        diff.addedIds.push(left[l]);
+        diff.addedCount++;
+        diff.addedSize += diffSnapshotNodes[left[l]].self_size;
+        r++;
+      } else if (left[l] > right[r]) {
+        diff.deletedIds.push(right[r]);
+        diff.removedCount++;
+        diff.removedSize += baseSnapshotNodes[right[r]].self_size;
+        l++;
+      } else {
+        l++;
+        r++;
+      }
+    }
+    while (l < left.length) {
+      diff.addedIds.push(left[l]);
+      diff.addedCount++;
+      diff.addedSize += diffSnapshotNodes[left[l]].self_size;
+      r++;
+    }
+    while (r < right.length) {
+      diff.deletedIds.push(right[r]);
+      diff.removedCount++;
+      diff.removedSize += baseSnapshotNodes[right[r]].self_size;
+      l++;
+    }
+    diff.countDelta = diff.addedCount - diff.removedCount;
+    diff.sizeDelta = diff.addedSize - diff.removedSize;
+    return diff;
   };
 }
 

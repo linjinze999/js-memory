@@ -312,3 +312,8 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8Snap
   }
   return true;
 }
+
+export enum diffShowType {
+  added,
+  removed,
+}

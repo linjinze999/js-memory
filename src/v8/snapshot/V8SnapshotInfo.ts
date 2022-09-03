@@ -60,6 +60,7 @@ export interface V8SnapshotInfoAggregatedInfo {
   type: V8SnapshotNodeTypes,
   name: string | null,
   idxs: number[],
+  ids: number[],
 }
 
 export interface V8SnapshotProgressParams {
@@ -762,10 +763,11 @@ export class V8SnapshotInfo {
               : (node.type === V8SnapshotNodeTypes.object
           || node.type === V8SnapshotNodeTypes.native) ? node.name : `(${node.type})`,
           idxs: [index],
+          ids: [node[V8SnapshotNodeFields.id]],
         };
         this.aggregatesByClassIndex[classIndex] = value;
         classIndexes.push(classIndex);
-        this.aggregatesByClassName[node.name] = value;
+        this.aggregatesByClassName[value.name] = value;
       } else {
         // 已有
         const clss = this.aggregatesByClassIndex[classIndex];
@@ -776,6 +778,7 @@ export class V8SnapshotInfo {
         ++clss.count;
         clss.self += node.self_size;
         clss.idxs.push(index);
+        clss.ids.push(node[V8SnapshotNodeFields.id]);
       }
     });
 
