@@ -5,8 +5,8 @@ module.exports = {
     '/': {
       lang: 'zh-CN',
       title: 'JS内存分析',
-      description: 'js内存分析工具'
-    }
+      description: 'js内存分析工具',
+    },
   },
   head: [],
   plugins: [],
@@ -25,12 +25,12 @@ module.exports = {
         nav: [
           {
             text: 'V8(Chrome)',
-            link: '/V8/snapshot/statistics',
+            link: '/V8/snapshot/containment',
           },
           {
             text: 'JSC(Safari)',
             link: '/JSC/',
-          }
+          },
         ],
         sidebar: {
           '/V8/': [
@@ -39,20 +39,20 @@ module.exports = {
               collapsable: false,
               children: [
                 'snapshot/statistics',
+                'snapshot/containment',
                 'snapshot/summary',
                 'snapshot/comparison',
-                'snapshot/containment',
-              ]
+              ],
             },
             {
               title: '时间轴上的分配插桩',
               collapsable: false,
               children: [
                 'timeline/statistics',
+                'timeline/containment',
                 'timeline/summary',
                 'timeline/comparison',
-                'timeline/containment',
-              ]
+              ],
             },
             {
               title: '分配采样',
@@ -61,19 +61,19 @@ module.exports = {
                 'profile/chart',
                 'profile/tree',
                 'profile/heavy',
-              ]
+              ],
             },
-          ]
-        }
-      }
-    }
+          ],
+        },
+      },
+    },
   },
   configureWebpack: {
-    resolve: {extensions: [".ts",".js"]},
+    resolve: { extensions: ['.ts', '.js'] },
     module: {
       rules: [
-        {test: /\.ts$/, loader: "ts-loader"}
-      ]
-    }
-  }
+        { test: /\.ts$/, loader: 'ts-loader' },
+      ],
+    },
+  },
 };

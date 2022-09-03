@@ -15,7 +15,7 @@ footer: MIT Licensed | Copyright © 2022 linjinze999
 <div>
 <div>解析V8（Chrome）生成的堆内存（heapsnapshot、heaptimeline、heapprofile）。</div>
 <br/>
-<a href="./V8/snapshot/statistics" class="nav-link action-button">分析 V8</a>
+<a href="./V8/snapshot/containment" class="nav-link action-button">分析 V8</a>
 </div>
 </el-card>
 </el-col>
