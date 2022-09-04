@@ -442,6 +442,7 @@ export default {
               edge,
               totalSize,
             }),
+            nodeId: node.id,
             rowKey: `${edge ? edge.idx : ''}_${edge ? edge.from_node : node.id}`,
             hasParents: !!(parents.length),
           };
