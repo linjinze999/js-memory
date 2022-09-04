@@ -211,13 +211,13 @@ export class V8Snapshot {
       if (left[l] < right[r]) {
         diff.addedIds.push(left[l]);
         diff.addedCount++;
-        diff.addedSize += diffSnapshotNodes[left[l]].self_size;
-        r++;
+        diff.addedSize += baseSnapshotNodes[left[l]].self_size;
+        l++;
       } else if (left[l] > right[r]) {
         diff.deletedIds.push(right[r]);
         diff.removedCount++;
-        diff.removedSize += baseSnapshotNodes[right[r]].self_size;
-        l++;
+        diff.removedSize += diffSnapshotNodes[right[r]].self_size;
+        r++;
       } else {
         l++;
         r++;
@@ -226,14 +226,14 @@ export class V8Snapshot {
     while (l < left.length) {
       diff.addedIds.push(left[l]);
       diff.addedCount++;
-      diff.addedSize += diffSnapshotNodes[left[l]].self_size;
-      r++;
+      diff.addedSize += baseSnapshotNodes[left[l]].self_size;
+      l++;
     }
     while (r < right.length) {
       diff.deletedIds.push(right[r]);
       diff.removedCount++;
-      diff.removedSize += baseSnapshotNodes[right[r]].self_size;
-      l++;
+      diff.removedSize += diffSnapshotNodes[right[r]].self_size;
+      r++;
     }
     diff.countDelta = diff.addedCount - diff.removedCount;
     diff.sizeDelta = diff.addedSize - diff.removedSize;

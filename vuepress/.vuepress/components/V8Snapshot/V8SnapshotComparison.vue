@@ -96,6 +96,7 @@
               width="150px"
           >
             <template slot-scope="scope">
+              <span v-if="scope.row.countDelta > 0">+</span>
               <span>{{ scope.row.countDelta }}</span>
             </template>
           </el-table-column>
@@ -129,6 +130,7 @@
               width="150px"
           >
             <template slot-scope="scope">
+              <span v-if="scope.row.sizeDelta > 0">+</span>
               <span>{{ scope.row.sizeDelta }}</span>
             </template>
           </el-table-column>
@@ -250,6 +252,9 @@ export default {
       return Object.keys(diffMap).map((className) => ({
         ...diffMap[className],
         nameShow: className,
+        rowKey: className,
+        hasChildren: true,
+        level: 1,
       }));
     },
     totalSize() {
@@ -258,12 +263,18 @@ export default {
               && this.activeSnapshot.snapshot.calculateStatistics().total)
           || 9999999999;
     },
+    compareTotalSize() {
+      return (this.compareSnapshot
+              && this.compareSnapshot.snapshot
+              && this.compareSnapshot.snapshot.calculateStatistics().total)
+          || 9999999999;
+    },
     compareSnapshotList() {
       return this.snapshotList.filter((snapshot) => snapshot.id !== this.activeId);
     },
     compareSnapshot() {
       return this.compareSnapshotId
-          && this.snapshotList.find((snapshot) => snapshot.id !== this.compareSnapshotId);
+          && this.snapshotList.find((snapshot) => snapshot.id === this.compareSnapshotId);
     },
     currentNodeParents() {
       return this.currentNode ? this.getNodeParents(this.currentNode.nodeId) : [];
@@ -273,27 +284,33 @@ export default {
   },
   methods: {
     load(tree, treeNode, resolve) {
-      if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
+      if (!this.activeSnapshot || !this.activeSnapshot.snapshot
+          || !this.compareSnapshot || !this.compareSnapshot.snapshot) {
         resolve([]);
         return;
       }
       if (tree.className) {
+        const level = 2;
         const addedNodes = tree.addedIds
           .map((id, index) => {
             const node = this.activeSnapshot.snapshot.snapshot_info.nodes[id];
             const children = this.activeSnapshot.snapshot
               .getNodeChildren(node.id);
             return {
+              ...getNodeShowInfo({
+                node,
+                totalSize: this.totalSize,
+              }),
               nodeId: node.id,
               removedCount: '',
               removedSize: '',
-              addedCount: '·',
+              addedCount: '△',
               addedSize: node.self_size,
               countDelta: '',
               sizeDelta: '',
-              level: 1,
+              level,
               type: diffShowType.added,
-              rowKey: `${diffShowType.added}_${index}_${node.id}`,
+              rowKey: `${diffShowType.added}_${level}_${index}_${node.id}`,
               hasChildren: !!children.length,
             };
           });
@@ -303,16 +320,20 @@ export default {
             const children = this.compareSnapshot.snapshot
               .getNodeChildren(node.id);
             return {
+              ...getNodeShowInfo({
+                node,
+                totalSize: this.compareTotalSize,
+              }),
               nodeId: node.id,
-              removedCount: '·',
+              removedCount: '△',
               removedSize: node.self_size,
               addedCount: '',
               addedSize: '',
               countDelta: '',
               sizeDelta: '',
-              level: 1,
+              level,
               type: diffShowType.removed,
-              rowKey: `${diffShowType.removed}_${index}_${node.id}`,
+              rowKey: `${diffShowType.removed}_${level}_${index}_${node.id}`,
               hasChildren: !!children.length,
             };
           });
@@ -331,17 +352,20 @@ export default {
     },
     getNodeChildren(tree) {
       let snapshot;
+      let totalSize;
       const level = tree.level + 1;
       if (tree.type === diffShowType.added) {
         if ((!this.activeSnapshot || !this.activeSnapshot.snapshot)) {
           return [];
         }
         snapshot = this.activeSnapshot.snapshot;
+        totalSize = this.totalSize;
       } else {
         if ((!this.compareSnapshot || !this.compareSnapshot.snapshot)) {
           return [];
         }
         snapshot = this.compareSnapshot.snapshot;
+        totalSize = this.compareTotalSize;
       }
       return snapshot
         .getNodeChildren(tree.nodeId)
@@ -357,15 +381,15 @@ export default {
             ...getNodeShowInfo({
               node,
               edge,
-              totalSize: this.totalSize,
+              totalSize,
             }),
             level,
             rowKey: `${level}_${tree.type}_${(edge ? edge.idx : '')}_${node.id}`,
             hasChildren: !!children.length,
             nodeId: node.id,
-            removedCount: tree.type === diffShowType.added ? '' : '·',
+            removedCount: tree.type === diffShowType.added ? '' : '△',
             removedSize: tree.type === diffShowType.added ? '' : node.self_size,
-            addedCount: tree.type === diffShowType.added ? '·' : '',
+            addedCount: tree.type === diffShowType.added ? '△' : '',
             addedSize: tree.type === diffShowType.added ? node.self_size : '',
             countDelta: '',
             sizeDelta: '',
@@ -388,16 +412,19 @@ export default {
     },
     getNodeParents(nodeId) {
       let snapshot;
+      let totalSize;
       if (this.currentNode.type === diffShowType.added) {
         if (!this.activeSnapshot || !this.activeSnapshot.snapshot) {
           return [];
         }
         snapshot = this.activeSnapshot.snapshot;
+        totalSize = this.totalSize;
       } else {
         if (!this.compareSnapshot || !this.compareSnapshot.snapshot) {
           return [];
         }
         snapshot = this.compareSnapshot.snapshot;
+        totalSize = this.compareTotalSize;
       }
       return snapshot
         .getNodeParents(nodeId)
@@ -413,7 +440,7 @@ export default {
             ...getNodeShowInfo({
               node,
               edge,
-              totalSize: this.totalSize,
+              totalSize,
             }),
             rowKey: `${edge ? edge.idx : ''}_${edge ? edge.from_node : node.id}`,
             hasParents: !!(parents.length),
@@ -421,7 +448,7 @@ export default {
         });
     },
     handleCurrentChange(currentRow) {
-      if (!currentRow.id) {
+      if (currentRow.className) {
         return;
       }
       this.currentNode = currentRow;
