@@ -267,7 +267,9 @@ export class V8Snapshot {
         scriptEdges[edge.to_node].scriptNameNode && scriptEdges[edge.to_node].edgeList.push(edge);
       }
     });
-    const scriptList = Object.keys(scriptEdges).filter((nodeId) => scriptEdges[nodeId].scriptNameNode).map((nodeId) => scriptEdges[nodeId]);
+    const scriptList = Object.keys(scriptEdges)
+      .filter((nodeId) => scriptEdges[nodeId].scriptNameNode)
+      .map((nodeId) => scriptEdges[nodeId]);
     return scriptList;
   };
 }
