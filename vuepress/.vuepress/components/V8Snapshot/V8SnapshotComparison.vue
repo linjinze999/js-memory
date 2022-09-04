@@ -223,6 +223,8 @@ import {
 
 const { mapGetters, mapState } = createNamespacedHelpers('V8Snapshot');
 
+const MAX_SHOW = 20;
+
 export default {
   name: 'V8SnapshotComparison',
   data() {
@@ -291,7 +293,7 @@ export default {
       }
       if (tree.className) {
         const level = 2;
-        const addedNodes = tree.addedIds
+        const addedNodes = tree.addedIds.slice(0, MAX_SHOW)
           .map((id, index) => {
             const node = this.activeSnapshot.snapshot.snapshot_info.nodes[id];
             const children = this.activeSnapshot.snapshot
@@ -314,7 +316,24 @@ export default {
               hasChildren: !!children.length,
             };
           });
-        const removedNodes = tree.deletedIds
+        // todo 暂时只显示前20
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        tree.addedIds.length > MAX_SHOW && addedNodes.push({
+          nodeId: '',
+          removedCount: '',
+          removedSize: '',
+          addedCount: '',
+          addedSize: '',
+          countDelta: '',
+          sizeDelta: '',
+          level,
+          nameShow: `暂时只显示前${MAX_SHOW}个`,
+          nameShowStyle: { color: '#E6A23C' },
+          type: diffShowType.added,
+          rowKey: `${tree.rowKey}_add_tip`,
+          hasChildren: false,
+        });
+        const removedNodes = tree.deletedIds.slice(0, MAX_SHOW)
           .map((id, index) => {
             const node = this.compareSnapshot.snapshot.snapshot_info.nodes[id];
             const children = this.compareSnapshot.snapshot
@@ -337,7 +356,25 @@ export default {
               hasChildren: !!children.length,
             };
           });
-        resolve([].concat([], addedNodes, removedNodes));
+        // todo 暂时只显示前20
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        tree.deletedIds.length > MAX_SHOW && removedNodes.push({
+          nodeId: '',
+          removedCount: '',
+          removedSize: '',
+          addedCount: '',
+          addedSize: '',
+          countDelta: '',
+          sizeDelta: '',
+          level,
+          nameShow: `暂时只显示前${MAX_SHOW}个`,
+          nameShowStyle: { color: '#E6A23C' },
+          type: diffShowType.removed,
+          rowKey: `${tree.rowKey}_remove_tip`,
+          hasChildren: false,
+        });
+        const result = [].concat([], addedNodes, removedNodes);
+        resolve(result);
       } else {
         const result = this.getNodeChildren(tree);
         resolve(result);
@@ -428,7 +465,7 @@ export default {
       }
       return snapshot
         .getNodeParents(nodeId)
-        .filter((item) => this.filterItem(item))
+        // .filter((item) => this.filterItem(item))
         .map((item) => {
           const {
             node,
@@ -449,7 +486,7 @@ export default {
         });
     },
     handleCurrentChange(currentRow) {
-      if (currentRow.className) {
+      if (currentRow.className || !currentRow.nodeId) {
         return;
       }
       this.currentNode = currentRow;
