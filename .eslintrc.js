@@ -29,16 +29,17 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
-    'max-len': [
-      "error",
-      {
-        "ignoreComments": true,
-        "ignoreTrailingComments": true,
-        code: 100,
-        "ignoreTemplateLiterals": true,
-        "ignoreStrings": true
-      }
-    ],
+    // 'max-len': [
+    //   "error",
+    //   {
+    //     "ignoreComments": true,
+    //     "ignoreTrailingComments": true,
+    //     code: 100,
+    //     "ignoreTemplateLiterals": true,
+    //     "ignoreStrings": true
+    //   }
+    // ],
+    'max-len': 'off',
     'no-plusplus': 'off',
     'no-bitwise': 'off',
     'no-nested-ternary': 'off',
@@ -47,5 +48,6 @@ module.exports = {
     'no-mixed-operators': 'off',
     '@typescript-eslint/naming-convention': 'off',
     'no-console': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off'
   },
 };
