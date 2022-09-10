@@ -1,7 +1,7 @@
 import {
   V8SnapshotEdgeFields,
   V8SnapshotEdgeTypes,
-  V8SnapshotJson,
+  V8SnapshotJson, V8SnapshotLocationFields,
   V8SnapshotNodeFields,
   V8SnapshotNodeTypes,
 } from './V8SnapshotTypes';
@@ -68,6 +68,13 @@ export interface V8SnapshotProgressParams {
   text: string;
 }
 
+export interface V8SnapshotInfoLocation {
+  [V8SnapshotLocationFields.object_index]: number,
+  [V8SnapshotLocationFields.script_id]: number,
+  [V8SnapshotLocationFields.line]: number,
+  [V8SnapshotLocationFields.column]: number,
+}
+
 // V8Snapshot基础信息
 export class V8SnapshotInfo {
   constructor(options: V8SnapshotInfoOptions) {
@@ -87,13 +94,21 @@ export class V8SnapshotInfo {
 
   public edges_to: Record<number | string, V8SnapshotInfoEdge[] | undefined> = {}; // {[to_node_id]: [from_node1,from_node2]}
 
+  public location_list: V8SnapshotInfoLocation[] = [];
+
+  public location_map: Record<number, V8SnapshotInfoLocation> = {};
+
   public node_fields_idx: Record<V8SnapshotNodeFields, number> = {} as any;
 
   public edge_fields_idx: Record<V8SnapshotEdgeFields, number> = {} as any;
 
+  public location_fields_idx: Record<V8SnapshotLocationFields, number> = {} as any;
+
   public node_field_count: number = 0;
 
   public edge_fields_count: number = 0;
+
+  public location_field_Count: number = 0;
 
   public root_id = 1;
 
@@ -141,67 +156,60 @@ export class V8SnapshotInfo {
     }
     this.root_id = V8SnapshotInfo.ROOT_NODE_ID;
     // 初始化任务列表
-    const initTasks: { progress: number, text: string, fn: () => void }[] = [
+    const initTasks: { text: string, fn: () => void }[] = [
       {
-        progress: 0,
         text: '开始解析...',
         fn: this.initFieldsIndex,
       },
       {
-        progress: 0.09,
         text: '初始化节点数据...',
         fn: this.initNodes,
       },
       {
-        progress: 0.18,
         text: '初始化结构数据...',
         fn: this.initEdges,
       },
       {
-        progress: 0.27,
         text: '初始化节点标记...',
         fn: this.calculateFlags,
       },
       {
-        progress: 0.36,
         text: '初始化倒序树...',
         fn: this.buildPostOrderIndex,
       },
       {
-        progress: 0.45,
         text: '初始化支配树...',
         fn: this.buildDominatorTree,
       },
       {
-        progress: 0.54,
         text: '初始化节点保留大小...',
         fn: this.calculateRetainedSizes,
       },
       {
-        progress: 0.63,
         text: '初始化支配节点...',
         fn: this.buildDominatedNodes,
       },
       {
-        progress: 0.72,
         text: '初始化节点根距离...',
         fn: this.initDistance,
       },
       {
-        progress: 0.81,
         text: '初始化类合集...',
         fn: this.buildAggregates,
       },
       {
-        progress: 0.9,
         text: '初始化类保留大小...',
         fn: this.calculateClassesRetainedSize,
       },
+      {
+        text: '初始化类保留大小...',
+        fn: this.initLocations,
+      },
     ];
     // 执行初始化任务
-    initTasks.forEach((task) => {
+    initTasks.forEach((task, index) => {
       this.options.progressCallback?.({
-        progress: task.progress,
+        progress: index / initTasks.length,
         text: task.text,
       });
       task.fn();
@@ -216,11 +224,15 @@ export class V8SnapshotInfo {
   private initFieldsIndex = () => {
     this.node_field_count = this.snapshot.snapshot.meta.node_fields.length;
     this.edge_fields_count = this.snapshot.snapshot.meta.edge_fields.length;
+    this.location_field_Count = this.snapshot.snapshot.meta.location_fields.length;
     this.snapshot.snapshot.meta.node_fields.forEach((node_field, idx) => {
       this.node_fields_idx[node_field] = idx;
     });
     this.snapshot.snapshot.meta.edge_fields.forEach((edge_field, idx) => {
       this.edge_fields_idx[edge_field] = idx;
+    });
+    this.snapshot.snapshot.meta.location_fields.forEach((location_field, idx) => {
+      this.location_fields_idx[location_field] = idx;
     });
   };
 
@@ -841,5 +853,20 @@ export class V8SnapshotInfo {
     return -1 - this.snapshot.nodes[
       nodeIndex * this.node_field_count + this.node_fields_idx[V8SnapshotNodeFields.type]
     ];
+  };
+
+  // 初始化：location数据
+  private initLocations = () => {
+    const { locations } = this.snapshot;
+    for (let i = 0; i < locations.length; i += this.location_field_Count) {
+      const location: V8SnapshotInfoLocation = {
+        [V8SnapshotLocationFields.object_index]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.object_index]] / this.node_field_count,
+        [V8SnapshotLocationFields.script_id]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.script_id]],
+        [V8SnapshotLocationFields.line]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.line]],
+        [V8SnapshotLocationFields.column]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.column]],
+      };
+      this.location_list.push(location);
+      this.location_map[location[V8SnapshotLocationFields.object_index]] = location;
+    }
   };
 }

@@ -48,6 +48,7 @@ module.exports = {
     'no-mixed-operators': 'off',
     '@typescript-eslint/naming-convention': 'off',
     'no-console': 'off',
-    '@typescript-eslint/no-unused-expressions': 'off'
+    '@typescript-eslint/no-unused-expressions': 'off',
+    'no-param-reassign': 'off'
   },
 };
