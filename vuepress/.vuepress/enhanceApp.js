@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import {
-  // Pagination,
+  Pagination,
   // Dialog,
   // Autocomplete,
   // Dropdown,
@@ -107,7 +107,7 @@ export default ({ Vue, options }) => {
   Vue.use(Vuex);
   options.store = new Vuex.Store(store);
   // element-ui
-  // Vue.use(Pagination);
+  Vue.use(Pagination);
   // Vue.use(Dialog);
   // Vue.use(Autocomplete);
   // Vue.use(Dropdown);

@@ -12,18 +12,13 @@ export interface V8SnapshotInfoOptions {
 }
 
 export enum V8SnapshotInfoNodeFields {
-  // eslint-disable-next-line no-unused-vars
   retained_size = 'retained_size',
-  // eslint-disable-next-line no-unused-vars
   distance = 'distance',
-  // eslint-disable-next-line no-unused-vars
   flag = 'flag',
-  // eslint-disable-next-line no-unused-vars
   idx = 'idx',
 }
 
 export enum V8SnapshotInfoEdgeFields {
-  // eslint-disable-next-line no-unused-vars
   from_node = 'from_node',
   idx = 'idx',
 }
@@ -252,18 +247,18 @@ export class V8SnapshotInfo {
     const node_start = node_idx * this.node_field_count;
     const node_field = this.snapshot.snapshot.meta.node_fields;
     const node: Partial<V8SnapshotInfoNode> = {
-      retained_size: V8SnapshotInfo.NO_RETAINED_SIZE,
-      distance: V8SnapshotInfo.NO_DISTANCE,
-      flag: 0,
-      idx: node_idx,
+      [V8SnapshotInfoNodeFields.retained_size]: V8SnapshotInfo.NO_RETAINED_SIZE,
+      [V8SnapshotInfoNodeFields.distance]: V8SnapshotInfo.NO_DISTANCE,
+      [V8SnapshotInfoNodeFields.flag]: 0,
+      [V8SnapshotInfoNodeFields.idx]: node_idx,
     };
     for (let i = 0; i < this.node_field_count; ++i) {
       // todo name: concatenated string
       (node[node_field[i]] as string | number) = (this.getNodeField(node_start, i));
     }
-    node.retained_size = node.self_size;
-    if (node.type === V8SnapshotNodeTypes.native && (node.name!).indexOf('Detached ') === 0) {
-      node.flag! |= V8SnapshotInfo.NODE_FLAGS.detachedDOMTreeNode;
+    node[V8SnapshotInfoNodeFields.retained_size] = node[V8SnapshotNodeFields.self_size];
+    if (node[V8SnapshotNodeFields.type] === V8SnapshotNodeTypes.native && (node.name!).indexOf('Detached ') === 0) {
+      node[V8SnapshotInfoNodeFields.flag]! |= V8SnapshotInfo.NODE_FLAGS.detachedDOMTreeNode;
     }
     return node as V8SnapshotInfoNode;
   };
@@ -285,7 +280,7 @@ export class V8SnapshotInfo {
     let from_node_id: number;
     this.node_list.forEach((node) => {
       from_node_id = node.id;
-      for (let j = 0; j < node.edge_count; ++j) {
+      for (let j = 0; j < node[V8SnapshotNodeFields.edge_count]; ++j) {
         edge = this.getEdge(edge_idx, from_node_id);
         // edge list
         this.edge_list.push(edge);
@@ -343,7 +338,7 @@ export class V8SnapshotInfo {
     for (let postOrderIndex = 0; postOrderIndex < nodeCount - 1; ++postOrderIndex) {
       const nodeId = this.postOrderIndex2NodeId[postOrderIndex];
       const dominatorNodeId = dominatorsTree[nodeId];
-      (this.nodes[dominatorNodeId].retained_size) += (this.nodes[nodeId].retained_size);
+      (this.nodes[dominatorNodeId][V8SnapshotInfoNodeFields.retained_size]) += (this.nodes[nodeId][V8SnapshotInfoNodeFields.retained_size]);
     }
   };
 
@@ -356,14 +351,14 @@ export class V8SnapshotInfo {
     // BFS for user root objects.
     this.edges[root_node.id]?.forEach((edge) => {
       node_to = this.nodes[edge.to_node];
-      if (node_to.type !== V8SnapshotNodeTypes.synthetic) {
-        (node_to.distance = 1);
+      if (node_to[V8SnapshotNodeFields.type] !== V8SnapshotNodeTypes.synthetic) {
+        (node_to[V8SnapshotInfoNodeFields.distance] = 1);
         nodesToVisit[nodesToVisitLength++] = node_to;
       }
     });
     this.setNodeChildDistance(nodesToVisit, nodesToVisitLength);
     // BFS for objects not reached from user roots.
-    root_node.distance = nodesToVisitLength > 0 ? V8SnapshotInfo.BASE_SYSTEM_DISTANCE : 0;
+    root_node[V8SnapshotInfoNodeFields.distance] = nodesToVisitLength > 0 ? V8SnapshotInfo.BASE_SYSTEM_DISTANCE : 0;
     nodesToVisit[0] = root_node;
     nodesToVisitLength = 1;
     this.setNodeChildDistance(nodesToVisit, nodesToVisitLength);
@@ -381,11 +376,11 @@ export class V8SnapshotInfo {
       this.edges[node.id]?.forEach((edge) => {
         const node_to = this.nodes[edge.to_node];
         if (edge.type === V8SnapshotEdgeTypes.weak
-                    || node_to.distance !== V8SnapshotInfo.NO_DISTANCE
+                    || node_to[V8SnapshotInfoNodeFields.distance] !== V8SnapshotInfo.NO_DISTANCE
                     || !V8SnapshotInfo.nodesDistanceFilter(node_to, edge)) {
           return;
         }
-        node_to.distance = (node.distance) + 1;
+        node_to[V8SnapshotInfoNodeFields.distance] = (node[V8SnapshotInfoNodeFields.distance]) + 1;
         // eslint-disable-next-line no-param-reassign
         nodesToVisit[nodesToVisitLength++] = node_to;
       });
@@ -394,11 +389,11 @@ export class V8SnapshotInfo {
 
   // node距离过滤
   static nodesDistanceFilter = (node: V8SnapshotInfoNode, edge: V8SnapshotInfoEdge) => {
-    if (node.type === V8SnapshotNodeTypes.hidden) {
+    if (node[V8SnapshotNodeFields.type] === V8SnapshotNodeTypes.hidden) {
       return edge.name_or_index !== 'sloppy_function_map' || node.name !== 'system / NativeContext';
     }
-    if (node.type === V8SnapshotNodeTypes.array) {
-      if (node.name !== '(map descriptors)') {
+    if (node[V8SnapshotNodeFields.type] === V8SnapshotNodeTypes.array) {
+      if (node[V8SnapshotNodeFields.name] !== '(map descriptors)') {
         return true;
       }
       const index = typeof edge.name_or_index === 'number' ? edge.name_or_index : parseInt(edge.name_or_index, 10);
@@ -421,21 +416,21 @@ export class V8SnapshotInfo {
     let node_to: V8SnapshotInfoNode;
     this.edges[this.root_id]?.forEach((edge) => {
       node_to = this.nodes[edge.to_node];
-      if (node_to.type !== V8SnapshotNodeTypes.synthetic) {
+      if (node_to[V8SnapshotNodeFields.type] !== V8SnapshotNodeTypes.synthetic) {
         list.push(node_to);
       }
     });
 
     while (list.length) {
       const node = (list.pop() as V8SnapshotInfoNode);
-      if (node.flag & flag) {
+      if (node[V8SnapshotInfoNodeFields.flag] & flag) {
         // eslint-disable-next-line no-continue
         continue;
       }
-      node.flag |= flag;
+      node[V8SnapshotInfoNodeFields.flag] |= flag;
       this.edges[node.id]?.forEach((edge) => {
         const childNode = this.nodes[edge.to_node];
-        if (childNode.flag & flag) {
+        if (childNode[V8SnapshotInfoNodeFields.flag] & flag) {
           return;
         } if (edge.type === V8SnapshotEdgeTypes.hidden
           || edge.type === V8SnapshotEdgeTypes.invisible
@@ -455,11 +450,11 @@ export class V8SnapshotInfo {
       if (edge.type === V8SnapshotEdgeTypes.element) {
         // isDocumentDOMTreesRoot
         if (this.nodes[edge.to_node]?.type === V8SnapshotNodeTypes.synthetic && this.nodes[edge.to_node].name === '(Document DOM trees)') {
-          (this.nodes[edge.to_node].flag) |= flag;
+          (this.nodes[edge.to_node][V8SnapshotInfoNodeFields.flag]) |= flag;
           this.markPageOwnedNodesByNodeId(edge.to_node, flag);
         }
       } else if (edge.type === V8SnapshotEdgeTypes.shortcut) {
-        (this.nodes[edge.to_node].flag) |= flag;
+        (this.nodes[edge.to_node][V8SnapshotInfoNodeFields.flag]) |= flag;
         this.markPageOwnedNodesByNodeId(edge.to_node, flag);
       }
     });
@@ -469,13 +464,13 @@ export class V8SnapshotInfo {
   private markPageOwnedNodesByNodeId(nodeId: number, flag: number) {
     this.edges[nodeId]?.forEach((edge) => {
       const node_to = this.nodes[edge.to_node];
-      if ((node_to.flag) & flag) {
+      if ((node_to[V8SnapshotInfoNodeFields.flag]) & flag) {
         return;
       }
       if (edge.type === V8SnapshotEdgeTypes.weak) {
         return;
       }
-      (node_to.flag) |= flag;
+      (node_to[V8SnapshotInfoNodeFields.flag]) |= flag;
       this.markPageOwnedNodesByNodeId(edge.to_node, flag);
     });
   }
@@ -510,8 +505,8 @@ export class V8SnapshotInfo {
             return;
           }
           if (node.id !== this.root_id
-                      && ((childNode.flag) & V8SnapshotInfo.NODE_FLAGS.pageObject)
-                      && !((node.flag) & V8SnapshotInfo.NODE_FLAGS.pageObject)) {
+                      && ((childNode[V8SnapshotInfoNodeFields.flag]) & V8SnapshotInfo.NODE_FLAGS.pageObject)
+                      && !((node[V8SnapshotInfoNodeFields.flag]) & V8SnapshotInfo.NODE_FLAGS.pageObject)) {
             return;
           }
           hasNew = true;
@@ -637,17 +632,17 @@ export class V8SnapshotInfo {
           continue;
         }
         node = this.nodes[this.postOrderIndex2NodeId[postOrderIndex]];
-        const nodeFlag = ((node.flag) & flag);
+        const nodeFlag = ((node[V8SnapshotInfoNodeFields.flag]) & flag);
         let newDominatorIndex: number = noEntry;
         let orphanNode = true;
         let node_from: V8SnapshotInfoNode;
         this.edges_to[node.id]?.some((edge) => {
-          node_from = this.nodes[edge.from_node];
-          if (!this.isEssentialEdge(edge.from_node, edge.type)) {
+          node_from = this.nodes[edge[V8SnapshotInfoEdgeFields.from_node]];
+          if (!this.isEssentialEdge(edge[V8SnapshotInfoEdgeFields.from_node], edge.type)) {
             return false;
           }
           orphanNode = false;
-          const retainerNodeFlag = ((node_from.flag) & flag);
+          const retainerNodeFlag = ((node_from[V8SnapshotInfoNodeFields.flag]) & flag);
           // We are skipping the edges from non-page-owned nodes to page-owned nodes.
           // Otherwise the dominators for the objects that also were retained by debugger would be affected.
           if (node_from.id !== this.root_id && nodeFlag && !retainerNodeFlag) {
@@ -755,7 +750,7 @@ export class V8SnapshotInfo {
       if (filter && !filter(node)) {
         return;
       }
-      if (!node.self_size && node.type !== V8SnapshotNodeTypes.native) {
+      if (!node[V8SnapshotNodeFields.self_size] && node.type !== V8SnapshotNodeTypes.native) {
         return;
       }
       const classIndex = this.getNodeClassIndex(index);
@@ -788,7 +783,7 @@ export class V8SnapshotInfo {
         }
         clss.distance = Math.min(clss.distance, node.distance);
         ++clss.count;
-        clss.self += node.self_size;
+        clss.self += node[V8SnapshotNodeFields.self_size];
         clss.idxs.push(index);
         clss.ids.push(node[V8SnapshotNodeFields.id]);
       }
@@ -820,8 +815,8 @@ export class V8SnapshotInfo {
       const dominatedIndexTo = this.firstDominatedNodeIndex[node.idx + 1];
 
       if (!seen && (!filter || filter(node))
-            && (node.self_size || node.type === V8SnapshotNodeTypes.native)) {
-        this.aggregatesByClassIndex[classIndex].maxRet += node.retained_size;
+            && (node[V8SnapshotNodeFields.self_size] || node.type === V8SnapshotNodeTypes.native)) {
+        this.aggregatesByClassIndex[classIndex].maxRet += node[V8SnapshotInfoNodeFields.retained_size];
         if (dominatedIndexFrom !== dominatedIndexTo) {
           seenClassNameIndexes[classIndex] = true;
           sizes.push(list.length);
@@ -862,8 +857,8 @@ export class V8SnapshotInfo {
       const location: V8SnapshotInfoLocation = {
         [V8SnapshotLocationFields.object_index]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.object_index]] / this.node_field_count,
         [V8SnapshotLocationFields.script_id]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.script_id]],
-        [V8SnapshotLocationFields.line]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.line]],
-        [V8SnapshotLocationFields.column]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.column]],
+        [V8SnapshotLocationFields.line]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.line]] + 1,
+        [V8SnapshotLocationFields.column]: locations[i + this.location_fields_idx[V8SnapshotLocationFields.column]] + 1,
       };
       this.location_list.push(location);
       this.location_map[location[V8SnapshotLocationFields.object_index]] = location;

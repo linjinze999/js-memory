@@ -2,10 +2,13 @@ import {
   V8SnapshotInfo,
   V8SnapshotInfoAggregatedInfo,
   V8SnapshotInfoEdge,
+  V8SnapshotInfoLocation,
   V8SnapshotInfoNode,
   V8SnapshotProgressParams,
 } from './V8SnapshotInfo';
-import { V8SnapshotEdgeTypes, V8SnapshotJson, V8SnapshotNodeTypes } from './V8SnapshotTypes';
+import {
+  V8SnapshotEdgeTypes, V8SnapshotJson, V8SnapshotLocationFields, V8SnapshotNodeTypes,
+} from './V8SnapshotTypes';
 
 export interface SnapshotOptions {
   text: string | V8SnapshotJson;
@@ -22,9 +25,15 @@ export interface V8SnapshotCalculateSize {
   others: number // 其他
 }
 
-interface NodeEdge {
+export interface NodeEdge {
   node: V8SnapshotInfoNode,
   edge?: V8SnapshotInfoEdge,
+}
+
+export interface V8SnapshotScriptCode {
+  location: V8SnapshotInfoLocation,
+  node: V8SnapshotInfoNode,
+  scriptOrDebug: NodeEdge[],
 }
 
 export interface V8SnapshotDiff {
@@ -37,11 +46,6 @@ export interface V8SnapshotDiff {
   addedSize: number,
   countDelta: number,
   sizeDelta: number,
-}
-
-export interface V8SnapshotScriptCode {
-  edgeList: V8SnapshotInfoEdge[];
-  scriptNameNode?: V8SnapshotInfoNode
 }
 
 let snapshotId = 1;
@@ -66,6 +70,8 @@ export class V8Snapshot {
   private snapshotId = snapshotId++;
 
   private diffSnapshot: Record<number, Record<string, V8SnapshotDiff>> = {};
+
+  private scriptCode?: V8SnapshotScriptCode[];
 
   // 统计数据
   public calculateStatistics = (reset?: boolean): V8SnapshotCalculateSize => {
@@ -149,6 +155,7 @@ export class V8Snapshot {
       .map((classIndex) => this.snapshot_info.aggregatesByClassIndex[classIndex as any]);
   };
 
+  // 统计对比结果
   public calculateSnapshotDiff = (diffSnapshot: V8Snapshot) => {
     if (this.diffSnapshot[diffSnapshot.snapshotId]) {
       return this.diffSnapshot[diffSnapshot.snapshotId];
@@ -189,6 +196,7 @@ export class V8Snapshot {
     return result;
   };
 
+  // 统计类对比结果
   static calculateDiffForClass = (params: {
     baseSnapshotNodes: Record<number | string, V8SnapshotInfoNode>,
     diffSnapshotNodes: Record<number | string, V8SnapshotInfoNode>,
@@ -247,34 +255,45 @@ export class V8Snapshot {
     return diff;
   };
 
-  // 统计代码
-  // public calculateScriptCode = () => {
-  //   const scriptEdges: Record<number | string, V8SnapshotScriptCode> = {};
-  //   this.snapshot_info.edge_list.forEach((edge) => {
-  //     if (edge.type === V8SnapshotEdgeTypes.internal && edge.name_or_index === 'shared') {
-  //       if (!scriptEdges[edge.to_node]) {
-  //         scriptEdges[edge.to_node] = { edgeList: [], scriptNameNode: undefined };
-  //         const script_or_debug_edge = this.snapshot_info.edges[edge.to_node]
-  //           .find((to_edge) => to_edge.type === V8SnapshotEdgeTypes.internal
-  //             && to_edge.name_or_index === 'script_or_debug_info');
-  //         if (script_or_debug_edge) {
-  //           const name_edge = this.snapshot_info.edges[script_or_debug_edge.to_node]
-  //             .find((to_edge) => to_edge.type === V8SnapshotEdgeTypes.internal
-  //               && to_edge.name_or_index === 'name');
-  //           if (name_edge) {
-  //             scriptEdges[edge.to_node].scriptNameNode = this.snapshot_info.nodes[name_edge.to_node];
-  //           }
-  //         }
-  //       }
-  //       scriptEdges[edge.to_node].scriptNameNode && scriptEdges[edge.to_node].edgeList.push(edge);
-  //     }
-  //     return false;
-  //   });
-  //   const scriptList = Object.keys(scriptEdges)
-  //     .filter((nodeId) => scriptEdges[nodeId].scriptNameNode)
-  //     .map((nodeId) => scriptEdges[nodeId]);
-  //   return scriptList;
-  // };
+  // 统计代码结果
+  public getScriptCode = ():V8SnapshotScriptCode[] => {
+    if (!this.scriptCode) {
+      const {
+        location_list,
+        node_list,
+        edges,
+        nodes,
+      } = this.snapshot_info;
+      const scriptMap: Record<number, any> = {};
+      this.scriptCode = location_list.map((location) => {
+        const node = node_list[location[V8SnapshotLocationFields.object_index]];
+        if (!scriptMap[location[V8SnapshotLocationFields.script_id]]) {
+          const sharedEdge = edges[node.id]?.find((edge) => edge.name_or_index === 'shared' && edge.type === V8SnapshotEdgeTypes.internal);
+          const debugEdge = sharedEdge && edges[sharedEdge.to_node]
+            ?.find((edge) => edge.type === V8SnapshotEdgeTypes.internal && edge.name_or_index === 'script_or_debug_info');
+          scriptMap[location[V8SnapshotLocationFields.script_id]] = debugEdge && edges[debugEdge.to_node]
+            ?.filter(edge => edge.type === V8SnapshotEdgeTypes.internal && ['source', 'name'].includes(edge.name_or_index as string))
+            .map(edge => {
+              return {
+                edge,
+                node: nodes[edge.to_node],
+              };
+            });
+        }
+        return {
+          location,
+          node,
+          scriptOrDebug: scriptMap[location[V8SnapshotLocationFields.script_id]] || [],
+        };
+      }).sort((a, b) => {
+        return a.location[V8SnapshotLocationFields.script_id] - b.location[V8SnapshotLocationFields.script_id]
+            || a.location[V8SnapshotLocationFields.line] - b.location[V8SnapshotLocationFields.line]
+            || a.location[V8SnapshotLocationFields.column] - b.location[V8SnapshotLocationFields.column]
+            || a.location[V8SnapshotLocationFields.object_index] - b.location[V8SnapshotLocationFields.object_index];
+      });
+    }
+    return this.scriptCode;
+  };
 }
 
 export default V8Snapshot;

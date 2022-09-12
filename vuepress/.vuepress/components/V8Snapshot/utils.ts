@@ -1,9 +1,12 @@
 import {
   V8SnapshotEdgeTypes,
-  V8SnapshotInfo, V8SnapshotInfoAggregatedInfo,
+  V8SnapshotInfo,
+  V8SnapshotInfoAggregatedInfo,
   V8SnapshotInfoEdge,
   V8SnapshotInfoNode,
+  V8SnapshotLocationFields,
   V8SnapshotNodeTypes,
+  V8SnapshotScriptCode,
 } from '../../../../src';
 
 export { V8SnapshotInfo, V8SnapshotEdgeTypes, V8SnapshotNodeTypes } from '../../../../src';
@@ -316,4 +319,22 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8Snap
 export enum diffShowType {
   added,
   removed,
+}
+
+// 代码视图表格
+export function getScriptCodeShowInfo(params: { list: V8SnapshotScriptCode[], totalSize: number }) {
+  const { list, totalSize } = params;
+  return list.map((scriptCode) => {
+    return {
+      name: scriptCode.node.name,
+      scriptName: scriptCode.scriptOrDebug.find(v => v.edge.name_or_index === 'name')?.node.name,
+      scriptColumn: scriptCode.location[V8SnapshotLocationFields.column],
+      scriptLine: scriptCode.location[V8SnapshotLocationFields.line],
+      source: scriptCode.scriptOrDebug.find(v => v.edge.name_or_index === 'source')?.node.name,
+      selfSize: scriptCode.node.self_size,
+      retainedSize: scriptCode.node.retained_size,
+      selfSizePercent: Math.round((scriptCode.node.self_size * 100) / totalSize),
+      retainedSizePercent: Math.round((scriptCode.node.retained_size * 100) / totalSize),
+    };
+  });
 }

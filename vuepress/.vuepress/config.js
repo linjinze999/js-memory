@@ -38,6 +38,7 @@ module.exports = {
               title: '堆快照',
               collapsable: false,
               children: [
+                'snapshot/location',
                 'snapshot/containment',
                 'snapshot/summary',
                 'snapshot/comparison',
