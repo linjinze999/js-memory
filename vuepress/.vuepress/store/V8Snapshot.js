@@ -7,25 +7,27 @@ let idIndex = 1;
 
 export default {
   namespaced: true,
-  state: () => ({
-    snapshotList: [
-      {
-        id: idIndex,
-        name: '示例1.heapsnapshot',
-        snapshot: new V8Snapshot({ text: Demo1 }),
-        progress: 1,
-        progressText: '初始化完成',
-      },
-      {
-        id: ++idIndex,
-        name: '示例2.heapsnapshot',
-        snapshot: new V8Snapshot({ text: Demo2 }),
-        progress: 1,
-        progressText: '初始化完成',
-      },
-    ],
-    activeId: idIndex,
-  }),
+  state: () => {
+    return {
+      snapshotList: [
+        {
+          id: idIndex,
+          name: '示例1.heapsnapshot',
+          snapshot: new V8Snapshot({ text: Demo1 }),
+          progress: 1,
+          progressText: '初始化完成',
+        },
+        {
+          id: ++idIndex,
+          name: '示例2.heapsnapshot',
+          snapshot: new V8Snapshot({ text: Demo2 }),
+          progress: 1,
+          progressText: '初始化完成',
+        },
+      ],
+      activeId: idIndex,
+    };
+  },
   getters: {
     activeSnapshot: (state) => state.snapshotList.find((v) => v.id === state.activeId),
   },

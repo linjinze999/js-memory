@@ -294,6 +294,31 @@ export class V8Snapshot {
     }
     return this.scriptCode;
   };
+
+  // test = () => {
+  //   const {
+  //     edge_list,
+  //     location_list,
+  //     node_list,
+  //     edges,
+  //     nodes,
+  //   } = this.snapshot_info;
+  //   const result = [];
+  //   edge_list.forEach(edge => {
+  //     if(edge.name_or_index === 'shared' && edge.type === V8SnapshotEdgeTypes.internal){
+  //       const debugEdge = edges[edge.to_node]
+  //           ?.find((edge) => edge.type === V8SnapshotEdgeTypes.internal && edge.name_or_index === 'script_or_debug_info');
+  //       scriptMap[] = debugEdge && edges[debugEdge.to_node]
+  //           ?.filter(edge => edge.type === V8SnapshotEdgeTypes.internal && ['source', 'name'].includes(edge.name_or_index as string))
+  //           .map(edge => {
+  //             return {
+  //               edge,
+  //               node: nodes[edge.to_node],
+  //             };
+  //           });
+  //     }
+  //   })
+  // }
 }
 
 export default V8Snapshot;

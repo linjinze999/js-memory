@@ -338,7 +338,9 @@ export class V8SnapshotInfo {
     for (let postOrderIndex = 0; postOrderIndex < nodeCount - 1; ++postOrderIndex) {
       const nodeId = this.postOrderIndex2NodeId[postOrderIndex];
       const dominatorNodeId = dominatorsTree[nodeId];
-      (this.nodes[dominatorNodeId][V8SnapshotInfoNodeFields.retained_size]) += (this.nodes[nodeId][V8SnapshotInfoNodeFields.retained_size]);
+      if (this.nodes[dominatorNodeId]) {
+        (this.nodes[dominatorNodeId][V8SnapshotInfoNodeFields.retained_size]) += (this.nodes[nodeId][V8SnapshotInfoNodeFields.retained_size]);
+      }
     }
   };
 
@@ -718,7 +720,9 @@ export class V8SnapshotInfo {
       throw new Error('Root node is expected to be either first or last');
     }
     for (let nodeOrdinal = fromNodeOrdinal; nodeOrdinal < toNodeOrdinal; ++nodeOrdinal) {
-      ++indexArray[this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]].idx];
+      if (this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]]) {
+        ++indexArray[this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]].idx];
+      }
     }
     // Put in the first slot of each dominatedNodes slice the count of entries
     // that will be filled.
@@ -733,10 +737,12 @@ export class V8SnapshotInfo {
     // Fill up the dominatedNodes array with indexes of dominated nodes. Skip the root (node at
     // index 0) as it is the only node that dominates itself.
     for (let nodeOrdinal = fromNodeOrdinal; nodeOrdinal < toNodeOrdinal; ++nodeOrdinal) {
-      const dominatorOrdinal = this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]].idx;
-      let dominatedRefIndex = indexArray[dominatorOrdinal];
-      dominatedRefIndex += (--dominatedNodes[dominatedRefIndex]);
-      dominatedNodes[dominatedRefIndex] = nodeOrdinal;
+      if (this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]]) {
+        const dominatorOrdinal = this.nodes[dominatorsTree[this.node_list[nodeOrdinal].id]].idx;
+        let dominatedRefIndex = indexArray[dominatorOrdinal];
+        dominatedRefIndex += (--dominatedNodes[dominatedRefIndex]);
+        dominatedNodes[dominatedRefIndex] = nodeOrdinal;
+      }
     }
     this.firstDominatedNodeIndex = indexArray;
     this.dominatedNodes = dominatedNodes;
