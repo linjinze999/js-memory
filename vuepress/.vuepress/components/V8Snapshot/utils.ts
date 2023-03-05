@@ -195,6 +195,8 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8Snap
     'Date',
     'Array',
     'ArrayBuffer',
+    'NaN',
+    'Infinity',
     'String',
     'RegExp',
     'Set',
@@ -310,7 +312,8 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8Snap
     'getSelection',
     'get cookieStore',
     '__proto__',
-  ].includes(node.name)) {
+    'heap number',
+  ].some(v => v === node.name || v === edge.name_or_index)) {
     return false;
   }
   if (edge?.type === V8SnapshotEdgeTypes.property && [
@@ -539,7 +542,7 @@ export function filterUserObject(item: { node: V8SnapshotInfoNode, edge?: V8Snap
     'JSCompiler_renameProperty',
     'ShadyCSS',
     'cr',
-  ].some(key => node.name === key || node.name === (`get ${key}`) || node.name === `set ${key}`)) {
+  ].some(key => node.name === key || node.name === (`get ${key}`) || node.name === `set ${key}` || key === edge.name_or_index)) {
     return false;
   }
   return true;

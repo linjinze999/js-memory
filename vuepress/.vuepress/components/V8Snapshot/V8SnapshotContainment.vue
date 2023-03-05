@@ -39,71 +39,71 @@
 <!--            </el-option>-->
 <!--          </el-select>-->
         </el-form-item>
-        <el-form-item label="名称">
-          <el-input
-              placeholder="正则表达式"
-              v-model="nodeFilterForm.nodeFilterName"
-              clearable>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="最短根距离">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterDistanceMin"
-                clearable
-                style="width: 130px"
-            >
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterDistanceMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
-        <el-form-item label="自身大小">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterSelfSizeMin"
-                clearable
-                style="width: 130px">
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterSelfSizeMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
-        <el-form-item label="总大小">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterRetainedSizeMin"
-                clearable
-                style="width: 130px">
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterRetainedSizeMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
+<!--        <el-form-item label="名称">-->
+<!--          <el-input-->
+<!--              placeholder="正则表达式"-->
+<!--              v-model="nodeFilterForm.nodeFilterName"-->
+<!--              clearable>-->
+<!--          </el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="最短根距离">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterDistanceMin"-->
+<!--                clearable-->
+<!--                style="width: 130px"-->
+<!--            >-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterDistanceMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="自身大小">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterSelfSizeMin"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterSelfSizeMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="总大小">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterRetainedSizeMin"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterRetainedSizeMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
         <el-form-item>
           <el-button type="primary" @click="onFilter">提交</el-button>
         </el-form-item>
@@ -287,7 +287,7 @@ export default {
   name: 'V8SnapshotContainment',
   data() {
     return {
-      nodeFilterSelect: nodeFilterType.all,
+      nodeFilterSelect: nodeFilterType.userObject,
       // nodeFilterTypesSelect: [],
       nodeFilterName: '',
       nodeFilterDistanceMin: null,
@@ -297,7 +297,7 @@ export default {
       nodeFilterRetainedSizeMin: null,
       nodeFilterRetainedSizeMax: null,
       nodeFilterForm: {
-        nodeFilterSelect: nodeFilterType.all,
+        nodeFilterSelect: nodeFilterType.userObject,
         // nodeFilterTypesSelect: [],
         nodeFilterName: '',
         nodeFilterDistanceMin: null,

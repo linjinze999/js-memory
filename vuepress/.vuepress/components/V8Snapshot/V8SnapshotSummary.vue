@@ -6,110 +6,110 @@
     </el-card>
     <br/>
     <!-- 2. 选择条件 -->
-    <el-card>
-      <div slot="header">
-        <div>节点过滤</div>
-      </div>
-      <el-form :inline="true" size="small" :model="nodeFilterForm">
-        <el-form-item label="节点类型">
-          <el-select
-              v-model="nodeFilterForm.nodeFilterSelect"
-              placeholder="请选择"
-              style="width: 130px;"
-          >
-            <el-option
-                v-for="item in nodeFilterOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-            </el-option>
-          </el-select>
-          <!--          <el-select-->
-          <!--              v-if="nodeFilterForm.nodeFilterSelect === nodeFilterType.customize"-->
-          <!--              v-model="nodeFilterForm.nodeFilterTypesSelect"-->
-          <!--              placeholder="请选择"-->
-          <!--              multiple-->
-          <!--              clearable-->
-          <!--          >-->
-          <!--            <el-option-->
-          <!--                v-for="item in nodeFilterTypeOptions"-->
-          <!--                :key="item"-->
-          <!--                :label="item"-->
-          <!--                :value="item">-->
-          <!--            </el-option>-->
-          <!--          </el-select>-->
-        </el-form-item>
-        <el-form-item label="名称">
-          <el-input
-              placeholder="正则表达式"
-              v-model="nodeFilterForm.nodeFilterName"
-              clearable>
-          </el-input>
-        </el-form-item>
-        <el-form-item label="最短根距离">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterDistanceMin"
-                clearable
-                style="width: 130px"
-            >
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterDistanceMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
-        <el-form-item label="自身大小">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterSelfSizeMin"
-                clearable
-                style="width: 130px">
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterSelfSizeMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
-        <el-form-item label="总大小">
-          <div>
-            <el-input
-                type="number"
-                placeholder="大于等于"
-                v-model="nodeFilterForm.nodeFilterRetainedSizeMin"
-                clearable
-                style="width: 130px">
-            </el-input>
-            -
-            <el-input
-                type="number"
-                placeholder="小于"
-                v-model="nodeFilterForm.nodeFilterRetainedSizeMax"
-                clearable
-                style="width: 130px">
-            </el-input>
-          </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onFilter">提交</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-    <br/>
+<!--    <el-card>-->
+<!--      <div slot="header">-->
+<!--        <div>节点过滤</div>-->
+<!--      </div>-->
+<!--      <el-form :inline="true" size="small" :model="nodeFilterForm">-->
+<!--        <el-form-item label="节点类型">-->
+<!--          <el-select-->
+<!--              v-model="nodeFilterForm.nodeFilterSelect"-->
+<!--              placeholder="请选择"-->
+<!--              style="width: 130px;"-->
+<!--          >-->
+<!--            <el-option-->
+<!--                v-for="item in nodeFilterOptions"-->
+<!--                :key="item.value"-->
+<!--                :label="item.label"-->
+<!--                :value="item.value">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--          &lt;!&ndash;          <el-select&ndash;&gt;-->
+<!--          &lt;!&ndash;              v-if="nodeFilterForm.nodeFilterSelect === nodeFilterType.customize"&ndash;&gt;-->
+<!--          &lt;!&ndash;              v-model="nodeFilterForm.nodeFilterTypesSelect"&ndash;&gt;-->
+<!--          &lt;!&ndash;              placeholder="请选择"&ndash;&gt;-->
+<!--          &lt;!&ndash;              multiple&ndash;&gt;-->
+<!--          &lt;!&ndash;              clearable&ndash;&gt;-->
+<!--          &lt;!&ndash;          >&ndash;&gt;-->
+<!--          &lt;!&ndash;            <el-option&ndash;&gt;-->
+<!--          &lt;!&ndash;                v-for="item in nodeFilterTypeOptions"&ndash;&gt;-->
+<!--          &lt;!&ndash;                :key="item"&ndash;&gt;-->
+<!--          &lt;!&ndash;                :label="item"&ndash;&gt;-->
+<!--          &lt;!&ndash;                :value="item">&ndash;&gt;-->
+<!--          &lt;!&ndash;            </el-option>&ndash;&gt;-->
+<!--          &lt;!&ndash;          </el-select>&ndash;&gt;-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="名称">-->
+<!--          <el-input-->
+<!--              placeholder="正则表达式"-->
+<!--              v-model="nodeFilterForm.nodeFilterName"-->
+<!--              clearable>-->
+<!--          </el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="最短根距离">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterDistanceMin"-->
+<!--                clearable-->
+<!--                style="width: 130px"-->
+<!--            >-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterDistanceMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="自身大小">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterSelfSizeMin"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterSelfSizeMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="总大小">-->
+<!--          <div>-->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="大于等于"-->
+<!--                v-model="nodeFilterForm.nodeFilterRetainedSizeMin"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--            - -->
+<!--            <el-input-->
+<!--                type="number"-->
+<!--                placeholder="小于"-->
+<!--                v-model="nodeFilterForm.nodeFilterRetainedSizeMax"-->
+<!--                clearable-->
+<!--                style="width: 130px">-->
+<!--            </el-input>-->
+<!--          </div>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item>-->
+<!--          <el-button type="primary" @click="onFilter">提交</el-button>-->
+<!--        </el-form-item>-->
+<!--      </el-form>-->
+<!--    </el-card>-->
+<!--    <br/>-->
     <!-- 3. 控制/包含 视图 -->
     <el-card>
       <!-- 3.1 标题 -->

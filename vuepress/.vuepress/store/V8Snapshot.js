@@ -29,7 +29,12 @@ export default {
     };
   },
   getters: {
-    activeSnapshot: (state) => state.snapshotList.find((v) => v.id === state.activeId),
+    activeSnapshot: (state) => {
+      const s = state.snapshotList.find((v) => v.id === state.activeId);
+      // eslint-disable-next-line no-underscore-dangle
+      window.__DATA__ = s && s.snapshot;
+      return s;
+    },
   },
   mutations: {
     addSnapshot(state, { snapshotList }) {
